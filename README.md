@@ -40,4 +40,6 @@ Trash Talk:
 
 1: James far better than Ian
 
-2: Ian I guess
+2: Garrett
+
+3: Ian I guess
