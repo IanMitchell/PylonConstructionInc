@@ -7,6 +7,14 @@ Initial Resources / Build Order.
 1. Ian
 2. Garrett
 
+8 pylon (Around here, be ready to relinquish control of one worker to Scout)
+10 gateway
+12 gateway
+zealot
+16 assimilator
+
+
+
 Army creation balanced with Building creation (Mid-game / late-game oriented, different from initial start) (Doesn't focus on why it's building it, but just does it)
 
 1. Talha
