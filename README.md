@@ -7,10 +7,14 @@ Initial Resources / Build Order.
 1. Ian
 2. Garrett
 
-8 pylon (Around here, be ready to relinquish control of one worker to Scout)
+8 pylon (Around here, be ready to relinquish control of one worker to Scout
+
 10 gateway
+
 12 gateway
+
 zealot
+
 16 assimilator
 
 
