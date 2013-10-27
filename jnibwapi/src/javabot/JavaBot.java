@@ -27,9 +27,11 @@ public class JavaBot implements BWAPIEventListener {
 	private TrashManager trashManager = TrashManager.getInstance();
 	private UnitManager unitManager = UnitManager.getInstance();
 	
-	private Set<Integer> buildingRequests = new HashSet<Integer>();
-	private Set<Integer> armyRequests = new HashSet<Integer>();
-	private Set<Integer> workerRequests = new HashSet<Integer>();
+	private static Set<Integer> buildingRequests = new HashSet<Integer>();
+	private static Set<Integer> armyRequests = new HashSet<Integer>();
+	private static Set<Integer> workerRequests = new HashSet<Integer>();
+	
+	private static List<Unit> assignedUnits = new ArrayList<Unit>();
 
 	
 	public static void main(String[] args) {
@@ -130,7 +132,7 @@ public class JavaBot implements BWAPIEventListener {
 		
 	}
 	
-	public void requestUnit(int unit) {
+	public static void requestUnit(int unit) {
         UnitType type = bwapi.getUnitType(unit);
         if (type.isBuilding())
         	buildingRequests.add(unit);
@@ -140,5 +142,10 @@ public class JavaBot implements BWAPIEventListener {
         else {
         	armyRequests.add(unit);
         }
+	}
+	
+	public static void assignUnit(Unit unit) {
+		assignedUnits.add(unit);
+	}
 	}
 }
