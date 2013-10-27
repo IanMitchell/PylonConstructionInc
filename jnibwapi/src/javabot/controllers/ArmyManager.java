@@ -14,4 +14,8 @@ public class ArmyManager {
 		}
 		return instance;
 	}
+	
+	public static void assignUnit(Unit unit) {
+		
+	}
 }
