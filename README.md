@@ -68,7 +68,7 @@ For version 1, we will want the following capabilities:
 
 **Unit Manager:**
 
- * Train Units
+ [ ] Train Units
  * Watch Supply, alert GameManager when low
  * Give Units to GameManager
 
