@@ -1,6 +1,7 @@
 package javabot.controllers;
 
 import java.util.ArrayList;
+
 import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
 import javabot.JavaBot;
@@ -14,6 +15,19 @@ public class ResourceManager {
 	private static ArrayList<Unit> gasNodes = new ArrayList<Unit>();
 
 	private static Boolean assimilatorRequested = false;
+
+	private static ResourceManager instance = null;
+
+	private ResourceManager() {
+
+	}
+
+	public static ResourceManager getInstance() {
+		if(instance == null) {
+			instance = new ResourceManager();
+		}
+		return instance;
+	}
 
 
 	public static void gameStart(ArrayList<Unit> units) {
@@ -39,11 +53,6 @@ public class ResourceManager {
 		if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
 			gasNodes.add(u);
 
-		}
-		else {
-			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
-			JavaBot.assignUnit(u);
-
 			if (mineralWorkers.size() > 3) {
 				JavaBot.bwapi.rightClick(mineralWorkers.get(0).getID(), u.getID());
 				JavaBot.bwapi.rightClick(mineralWorkers.get(1).getID(), u.getID());
@@ -56,6 +65,10 @@ public class ResourceManager {
 				mineralWorkers.remove(1);
 				mineralWorkers.remove(2);
 			}
+		}
+		else {
+			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
+			JavaBot.assignUnit(u);
 		}
 	}
 
@@ -110,7 +123,7 @@ public class ResourceManager {
 				}
 				else {
 					JavaBot.bwapi.printText("Idle Mineral Worker with nothing to do.");
-					mineralWorkers.add(unit);
+					mineralWorkers.remove(unit);
 					JavaBot.assignUnit(unit);
 				}
 			}
