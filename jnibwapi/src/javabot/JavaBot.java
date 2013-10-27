@@ -147,5 +147,4 @@ public class JavaBot implements BWAPIEventListener {
 	public static void assignUnit(Unit unit) {
 		assignedUnits.add(unit);
 	}
-	}
 }
