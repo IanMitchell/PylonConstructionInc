@@ -20,7 +20,7 @@ public class BuildManager {
 		return instance;
 	}
 	
-	public static void act() {
+	public void act() {
 		// Build pylons if we are low on supply (if free supply is less than 3).
 		if (((JavaBot.bwapi.getSelf().getSupplyTotal() - JavaBot.bwapi.getSelf().getSupplyUsed())/2) < 3) {
 			// Check if we have enough minerals,

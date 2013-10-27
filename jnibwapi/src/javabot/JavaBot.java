@@ -2,8 +2,11 @@ package javabot;
 
 import java.awt.Point;
 
+import javabot.controllers.ArmyManager;
 import javabot.controllers.BuildManager;
 import javabot.controllers.ResourceManager;
+import javabot.controllers.ScoutManager;
+import javabot.controllers.TrashManager;
 import javabot.controllers.UnitManager;
 import javabot.models.*;
 import javabot.types.*;
@@ -12,12 +15,17 @@ import javabot.types.UnitType.UnitTypes;
 import javabot.util.BWColor;
 
 public class JavaBot implements BWAPIEventListener {
-	
-	// Some miscelaneous variables. Feel free to add yours.
+	public static JNIBWAPI bwapi;
 	public static int homePositionX;
 	public static int homePositionY;
-
-	public static JNIBWAPI bwapi;
+	
+	private ArmyManager armyManager = ArmyManager.getInstance();
+	private BuildManager buildManager = BuildManager.getInstance();
+	private ResourceManager resourceManager = ResourceManager.getInstance();
+	private ScoutManager scoutManager = ScoutManager.getInstance();
+	private TrashManager trashManager = TrashManager.getInstance();
+	private UnitManager unitManager = UnitManager.getInstance();
+	
 	public static void main(String[] args) {
 		new JavaBot();
 	}
@@ -43,16 +51,13 @@ public class JavaBot implements BWAPIEventListener {
 		// analyze the map
 		bwapi.loadMapData(true);
 		
-		// ============== YOUR CODE GOES HERE =======================
 
 		// This is called at the beginning of the game. You can 
 		// initialize some data structures (or do something similar) 
 		// if needed. For example, you should maintain a memory of seen 
 		// enemy buildings.
 		
-		bwapi.printText("Hello world!");
 		bwapi.printText("This map is called "+bwapi.getMap().getName());
-		bwapi.printText("My race ID: "+String.valueOf(bwapi.getSelf().getRaceID()));				// Z=0,T=1,P=2
 		bwapi.printText("Enemy race ID: "+String.valueOf(bwapi.getEnemies().get(0).getRaceID()));	// Z=0,T=1,P=2
 		
 		// ==========================================================
@@ -61,23 +66,9 @@ public class JavaBot implements BWAPIEventListener {
 	
 	// Method called once every second.
 	public void act() {
-		
-		// ============== YOUR CODE GOES HERE =======================
-
-		// This method is called every 30th frame (approx. once a 
-		// second). You can use other methods in this class, but the 
-		// majority of your agent's behaviour will probably be here.
-		
-		
-		
-		UnitManager.act();
-		ResourceManager.act();
-		BuildManager.act();
-		
-		
-		
-		
-		// ==========================================================
+		unitManager.act();
+		resourceManager.act();
+		buildManager.act();
 	}
 	
 	

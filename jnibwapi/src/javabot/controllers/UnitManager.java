@@ -18,7 +18,7 @@ public class UnitManager {
 		return instance;
 	}
 
-	public static void act() {
+	public void act() {
 		//train probes
 		for (Unit unit : JavaBot.bwapi.getMyUnits()) {
 			if (unit.getTypeID() == UnitTypes.Protoss_Nexus.ordinal()) {

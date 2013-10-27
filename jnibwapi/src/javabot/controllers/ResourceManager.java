@@ -19,7 +19,7 @@ public class ResourceManager {
 		return instance;
 	}
 
-	public static void act() {
+	public void act() {
 		// mine minerals with idle worker
 		// Cycle over all my units,
 		for (Unit unit : JavaBot.bwapi.getMyUnits()) {
