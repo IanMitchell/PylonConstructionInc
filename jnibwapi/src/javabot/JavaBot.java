@@ -1,6 +1,7 @@
 package javabot;
 
 import java.awt.Point;
+import java.util.*;
 
 import javabot.controllers.ArmyManager;
 import javabot.controllers.BuildManager;
@@ -25,6 +26,11 @@ public class JavaBot implements BWAPIEventListener {
 	private ScoutManager scoutManager = ScoutManager.getInstance();
 	private TrashManager trashManager = TrashManager.getInstance();
 	private UnitManager unitManager = UnitManager.getInstance();
+	
+	private Set<Integer> buildingRequests = new HashSet<Integer>();
+	private Set<Integer> armyRequests = new HashSet<Integer>();
+	private Set<Integer> workerRequests = new HashSet<Integer>();
+
 	
 	public static void main(String[] args) {
 		new JavaBot();
@@ -124,4 +130,15 @@ public class JavaBot implements BWAPIEventListener {
 		
 	}
 	
+	public void requestUnit(int unit) {
+        UnitType type = bwapi.getUnitType(unit);
+        if (type.isBuilding())
+        	buildingRequests.add(unit);
+        else if (type.isWorker()){
+        	workerRequests.add(unit);
+        }
+        else {
+        	armyRequests.add(unit);
+        }
+	}
 }
