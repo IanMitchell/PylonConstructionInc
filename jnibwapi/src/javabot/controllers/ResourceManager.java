@@ -15,13 +15,13 @@ public class ResourceManager {
 	private static ArrayList<Unit> gasNodes = new ArrayList<Unit>();
 
 	private static Boolean assimilatorRequested = false;
-	
+
 	private static ResourceManager instance = null;
-	
+
 	private ResourceManager() {
-		
+
 	}
-	
+
 	public static ResourceManager getInstance() {
 		if(instance == null) {
 			instance = new ResourceManager();
@@ -124,7 +124,7 @@ public class ResourceManager {
 				}
 				else {
 					JavaBot.bwapi.printText("Idle Mineral Worker with nothing to do.");
-					mineralWorkers.add(unit);
+					mineralWorkers.remove(unit);
 					JavaBot.assignUnit(unit);
 				}
 			}
