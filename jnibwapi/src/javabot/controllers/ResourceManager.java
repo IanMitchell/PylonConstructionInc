@@ -5,6 +5,19 @@ import javabot.models.Unit;
 import javabot.types.UnitType.UnitTypes;
 
 public class ResourceManager {
+	
+	private static ResourceManager instance = null;
+	
+	private ResourceManager() {
+		
+	}
+	
+	public static ResourceManager getInstance() {
+		if(instance == null) {
+			instance = new ResourceManager();
+		}
+		return instance;
+	}
 
 	public static void act() {
 		// mine minerals with idle worker

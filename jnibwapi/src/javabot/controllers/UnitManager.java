@@ -5,6 +5,18 @@ import javabot.models.Unit;
 import javabot.types.UnitType.UnitTypes;
 
 public class UnitManager {
+	private static UnitManager instance = null;
+	
+	private UnitManager() {
+		
+	}
+	
+	public static UnitManager getInstance() {
+		if(instance == null) {
+			instance = new UnitManager();
+		}
+		return instance;
+	}
 
 	public static void act() {
 		//train probes

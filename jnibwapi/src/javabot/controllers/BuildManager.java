@@ -7,6 +7,18 @@ import javabot.models.Unit;
 import javabot.types.UnitType.UnitTypes;
 
 public class BuildManager {
+	private static BuildManager instance = null;
+	
+	private BuildManager() {
+		
+	}
+	
+	public static BuildManager getInstance() {
+		if(instance == null) {
+			instance = new BuildManager();
+		}
+		return instance;
+	}
 	
 	public static void act() {
 		// Build pylons if we are low on supply (if free supply is less than 3).
