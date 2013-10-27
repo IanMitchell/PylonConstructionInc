@@ -53,11 +53,6 @@ public class ResourceManager {
 		if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
 			gasNodes.add(u);
 
-		}
-		else {
-			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
-			JavaBot.assignUnit(u);
-
 			if (mineralWorkers.size() > 3) {
 				JavaBot.bwapi.rightClick(mineralWorkers.get(0).getID(), u.getID());
 				JavaBot.bwapi.rightClick(mineralWorkers.get(1).getID(), u.getID());
@@ -70,6 +65,10 @@ public class ResourceManager {
 				mineralWorkers.remove(1);
 				mineralWorkers.remove(2);
 			}
+		}
+		else {
+			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
+			JavaBot.assignUnit(u);
 		}
 	}
 
