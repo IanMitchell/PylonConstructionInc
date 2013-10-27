@@ -1,6 +1,7 @@
 package javabot.controllers;
 
 import java.util.ArrayList;
+
 import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
 import javabot.JavaBot;
@@ -14,6 +15,19 @@ public class ResourceManager {
 	private static ArrayList<Unit> gasNodes = new ArrayList<Unit>();
 
 	private static Boolean assimilatorRequested = false;
+	
+	private static ResourceManager instance = null;
+	
+	private ResourceManager() {
+		
+	}
+	
+	public static ResourceManager getInstance() {
+		if(instance == null) {
+			instance = new ResourceManager();
+		}
+		return instance;
+	}
 
 
 	public static void gameStart(ArrayList<Unit> units) {
