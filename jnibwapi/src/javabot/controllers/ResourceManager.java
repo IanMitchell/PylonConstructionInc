@@ -29,7 +29,6 @@ public class ResourceManager implements Manager {
 		return instance;
 	}
 
-
 	public void gameStart(ArrayList<Unit> units) {
 		mineralWorkers = units;
 		int counter = 0;
@@ -46,13 +45,14 @@ public class ResourceManager implements Manager {
 		}
 	}
 
+	@Override
 	public void assignUnit(Unit u) {
 		if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
 			mineralWorkers.add(u);
 		}
-		if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
+		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
 			gasNodes.add(u);
-
+			
 			if (mineralWorkers.size() > 3) {
 				JavaBot.bwapi.rightClick(mineralWorkers.get(0).getID(), u.getID());
 				JavaBot.bwapi.rightClick(mineralWorkers.get(1).getID(), u.getID());
@@ -68,7 +68,7 @@ public class ResourceManager implements Manager {
 		}
 		else {
 			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
-			JavaBot.assignUnit(u);
+			//JavaBot.assignUnit(u);
 		}
 	}
 
@@ -110,7 +110,7 @@ public class ResourceManager implements Manager {
 			if (unit.isIdle()) {
 				int closestId = -1;
 				double closestDist = 99999999;
-
+				
 				for (Unit neu : mineralNodes) {
 					double distance = Math.sqrt(Math.pow(neu.getX() - unit.getX(), 2) + Math.pow(neu.getY() - unit.getY(), 2));
 					if ((closestId == -1) || (distance < closestDist)) {
@@ -120,12 +120,12 @@ public class ResourceManager implements Manager {
 				}
 				// and (if we found it) send this worker to gather it.
 				if (closestId != -1) {
-					JavaBot.bwapi.rightClick(unit.getID(), closestId);
+					JavaBot.bwapi.gather(unit.getID(), closestId);
 				}
 				else {
 					JavaBot.bwapi.printText("Idle Mineral Worker with nothing to do.");
 					mineralWorkers.remove(unit);
-					JavaBot.assignUnit(unit);
+					//JavaBot.assignUnit(unit);
 				}
 			}
 		}

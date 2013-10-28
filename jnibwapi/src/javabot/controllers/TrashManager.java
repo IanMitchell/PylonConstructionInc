@@ -1,4 +1,7 @@
 package javabot.controllers;
+
+import javabot.models.Unit;
+
 public class TrashManager implements Manager {
 	private static TrashManager instance = null;
 	
@@ -21,6 +24,12 @@ public class TrashManager implements Manager {
 
 	@Override
 	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void assignUnit(Unit unit) {
 		// TODO Auto-generated method stub
 		
 	}

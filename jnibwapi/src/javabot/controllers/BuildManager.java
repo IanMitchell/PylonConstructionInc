@@ -9,6 +9,7 @@ import javabot.types.UnitType.UnitTypes;
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
 	private boolean hasPylon;
+	private int numGates=0;
 	
 	private BuildManager() {
 		hasPylon = false;
@@ -42,9 +43,8 @@ public class BuildManager implements Manager {
 			}
 		}
 
-		int numGates = 0;
 		for(Unit unit : JavaBot.bwapi.getMyUnits()) {
-			if(unit.getID() == UnitTypes.Protoss_Gateway.ordinal()) {
+			if(unit.getTypeID() == UnitTypes.Protoss_Gateway.ordinal()) {
 				numGates++;
 			}
 		}
@@ -157,6 +157,12 @@ public class BuildManager implements Manager {
 
 	@Override
 	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void assignUnit(Unit unit) {
 		// TODO Auto-generated method stub
 		
 	}

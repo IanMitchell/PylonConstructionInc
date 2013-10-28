@@ -24,6 +24,7 @@ public class ArmyManager implements Manager {
 		return instance;
 	}
 	
+	@Override
 	public void assignUnit(Unit unit) {
 		Squad squad = squads.get(0);
 		squad.assignUnit(unit);
@@ -33,8 +34,6 @@ public class ArmyManager implements Manager {
 	public void act() {
 		
 	}
-
-
 
 	public void gameUpdate() {
 		for(Unit unit : JavaBot.bwapi.getMyUnits()) {

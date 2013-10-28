@@ -47,4 +47,10 @@ public class UnitManager implements Manager {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void assignUnit(Unit unit) {
+		// TODO Auto-generated method stub
+		
+	}
 }

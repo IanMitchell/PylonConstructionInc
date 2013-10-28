@@ -46,6 +46,7 @@ public class ScoutManager implements Manager {
 	public void gameUpdate() {
 	}
 	
+	@Override
 	public void assignUnit(Unit unit) {
 		scouts.add(unit);
 	}

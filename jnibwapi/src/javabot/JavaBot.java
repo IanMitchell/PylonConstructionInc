@@ -21,7 +21,7 @@ public class JavaBot implements BWAPIEventListener {
 	public static int homePositionX;
 	public static int homePositionY;
 	
-	private HashMap<String, Manager> Managers = new HashMap<String, Manager>();
+	private HashMap<String, Manager> managers = new HashMap<String, Manager>();
 	
 	private static Set<Integer> buildingRequests = new HashSet<Integer>();
 	private static Set<Integer> armyRequests = new HashSet<Integer>();
@@ -69,18 +69,18 @@ public class JavaBot implements BWAPIEventListener {
 		bwapi.printText("This map is called "+bwapi.getMap().getName());
 		bwapi.printText("Enemy race ID: "+String.valueOf(bwapi.getEnemies().get(0).getRaceID()));	// Z=0,T=1,P=2
 		
-		Managers.put(ArmyManager.class.getSimpleName(), ArmyManager.getInstance());
-		Managers.put(BuildManager.class.getSimpleName(), BuildManager.getInstance());
-		Managers.put(ResourceManager.class.getSimpleName(), ResourceManager.getInstance());
-		Managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
-		Managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
-		Managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
+		managers.put(ArmyManager.class.getSimpleName(), ArmyManager.getInstance());
+		managers.put(BuildManager.class.getSimpleName(), BuildManager.getInstance());
+		managers.put(ResourceManager.class.getSimpleName(), ResourceManager.getInstance());
+		managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
+		managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
+		managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
 	}
 	
 	
 	// Method called once every second.
 	public void act() {
-		for (Manager manager : Managers.values())
+		for (Manager manager : managers.values())
 			manager.act();
 		if (hasPriority == Priority.ARMY && armyQueue.size() > 0) {
 			//Tell ArmyManager to build top unit in queue
@@ -110,10 +110,10 @@ public class JavaBot implements BWAPIEventListener {
 			//Unit scout = probes.remove(4);
 			//((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(probes);
 			//((ScoutManager) Managers.get(ScoutManager.class.getSimpleName())).assignUnit(scout);
-			((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
+			((ResourceManager) managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
 		}
 		
-		for (Manager manager : Managers.values())
+		for (Manager manager : managers.values())
 			manager.gameUpdate();
 		
 		// Draw debug information on screen
@@ -125,21 +125,42 @@ public class JavaBot implements BWAPIEventListener {
 			act();
 		}
 	}
-
-	// Some additional event-related methods.
-	public void gameEnded() {}
-	public void matchEnded(boolean winner) {}
-	public void nukeDetect(int x, int y) {}
-	public void nukeDetect() {}
-	public void playerLeft(int id) {}
-	public void unitCreate(int unitID) {}
-	public void unitDestroy(int unitID) {}
-	public void unitDiscover(int unitID) {}
-	public void unitEvade(int unitID) {}
-	public void unitHide(int unitID) {}
-	public void unitMorph(int unitID) {}
-	public void unitShow(int unitID) {}
-	public void keyPressed(int keyCode) {}
+	
+	/**
+	 * Event fired when unit is created.
+	 * Assigns probes to ResourceManager
+	 * Assigns combat units to ArmyManager
+	 * Assigns buildings to ...?
+	 * @param unitID id of unit created
+	 */
+	public void unitCreate(int unitID) {
+		Unit u = bwapi.getUnit(unitID);
+		UnitType type = bwapi.getUnitType(u.getTypeID());
+		bwapi.printText(type.getName() + " has been created.");
+		
+		if (type.isWorker()) {
+			bwapi.printText("Assigning worker to ResourceManager");
+			assignUnit(bwapi.getUnit(unitID), "ResourceManager");
+		}
+		else if (type.isAttackCapable() || type.isSpellcaster()) {
+			bwapi.printText("Assigning attacking unit to ResourceManager");
+			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
+		}
+		else if (type.isBuilding()) {
+			bwapi.printText("Assigning building to...?");
+			// TODO 
+		}
+	}
+	
+	/**
+	 * Assigns unit to specific manager as well as internal JavaBot table
+	 * @param unit unit to add
+	 * @param manager manager to assign to
+	 */
+	public void assignUnit(Unit unit, String manager) {
+		assignedUnits.add(unit);
+		managers.get(manager).assignUnit(unit);
+	}
 	
 	// Draws debug information on the screen. 
 	// Reimplement this function however you want. 
@@ -148,10 +169,15 @@ public class JavaBot implements BWAPIEventListener {
 		// Draw our home position.
 		bwapi.drawText(new Point(5,0), "Our home position: "+String.valueOf(homePositionX)+","+String.valueOf(homePositionY), true);
 		
-		// Draw circles over workers (blue if they're gathering minerals, green if gas, yellow if they're constructing).
+		// Draw circles over workers (blue if they're gathering minerals, green if gas, white if inactive)
 		for (Unit u : bwapi.getMyUnits())  {
-			if (u.isGatheringMinerals()) bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.BLUE, false, false);
-			else if (u.isGatheringGas()) bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.GREEN, false, false);
+			if (u.isGatheringMinerals()) 
+				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.BLUE, false, false);
+			else if (u.isGatheringGas())
+				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.GREEN, false, false);
+			else if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && u.isIdle())
+				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.WHITE, false, false);
+				
 		}
 		
 	}
@@ -168,12 +194,22 @@ public class JavaBot implements BWAPIEventListener {
         }
 	}
 	
-	public static void assignUnit(Unit unit) {
-		assignedUnits.add(unit);
-	}
-	
 	public static void needsScout() {
 		Unit scout = ResourceManager.requestScout();
 		//ScoutManager.setScout(scout);
 	}
+
+	// Some additional event-related methods.
+	public void gameEnded() {}
+	public void matchEnded(boolean winner) {}
+	public void nukeDetect(int x, int y) {}
+	public void nukeDetect() {}
+	public void playerLeft(int id) {}
+	public void unitDestroy(int unitID) {}
+	public void unitDiscover(int unitID) {}
+	public void unitEvade(int unitID) {}
+	public void unitHide(int unitID) {}
+	public void unitMorph(int unitID) {}
+	public void unitShow(int unitID) {}
+	public void keyPressed(int keyCode) {}
 }
