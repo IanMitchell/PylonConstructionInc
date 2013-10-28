@@ -141,4 +141,10 @@ public class ResourceManager implements Manager {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public static Unit requestScout() {
+		//Gives up a worker if the initial build is ready, so it can grow up and be a scout
+		//If not ready, returns null.
+		return null;
+	}
 }

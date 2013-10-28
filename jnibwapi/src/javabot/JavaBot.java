@@ -27,8 +27,14 @@ public class JavaBot implements BWAPIEventListener {
 	private static Set<Integer> armyRequests = new HashSet<Integer>();
 	private static Set<Integer> workerRequests = new HashSet<Integer>();
 	
+	private static List<Unit> buildingQueue = new ArrayList<Unit>();
+	private static List<Unit> armyQueue = new ArrayList<Unit>();
+	
 	private static List<Unit> assignedUnits = new ArrayList<Unit>();
-
+	
+	public static enum Priority {WORKERS, BUILDINGS, ARMY};
+		
+	private static Priority hasPriority = Priority.ARMY;
 	
 	public static void main(String[] args) {
 		new JavaBot();
@@ -76,6 +82,15 @@ public class JavaBot implements BWAPIEventListener {
 	public void act() {
 		for (Manager manager : Managers.values())
 			manager.act();
+		if (hasPriority == Priority.ARMY && armyQueue.size() > 0) {
+			//Tell ArmyManager to build top unit in queue
+		}
+		else if (hasPriority == Priority.BUILDINGS && buildingQueue.size() > 0) {
+			//Tell BuildManager to build top building in queue
+		}
+		else if (hasPriority == Priority.WORKERS) {
+			//ResourceManager has requested more workers
+		}
 	}
 	
 	
@@ -151,5 +166,10 @@ public class JavaBot implements BWAPIEventListener {
 	
 	public static void assignUnit(Unit unit) {
 		assignedUnits.add(unit);
+	}
+	
+	public static void needsScout() {
+		Unit scout = ResourceManager.requestScout();
+		ScoutManager.setScout(scout);
 	}
 }
