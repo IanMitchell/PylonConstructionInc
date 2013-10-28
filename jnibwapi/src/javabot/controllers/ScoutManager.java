@@ -1,5 +1,5 @@
 package javabot.controllers;
-public class ScoutManager {
+public class ScoutManager implements Manager {
 	private static ScoutManager instance = null;
 	
 	private ScoutManager() {
@@ -11,6 +11,18 @@ public class ScoutManager {
 			instance = new ScoutManager();
 		}
 		return instance;
+	}
+
+	@Override
+	public void act() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

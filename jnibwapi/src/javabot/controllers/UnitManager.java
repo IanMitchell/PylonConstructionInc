@@ -4,7 +4,7 @@ import javabot.JavaBot;
 import javabot.models.Unit;
 import javabot.types.UnitType.UnitTypes;
 
-public class UnitManager {
+public class UnitManager implements Manager {
 	private static UnitManager instance = null;
 	
 	private UnitManager() {
@@ -18,6 +18,7 @@ public class UnitManager {
 		return instance;
 	}
 
+	@Override
 	public void act() {
 		//train probes
 		for (Unit unit : JavaBot.bwapi.getMyUnits()) {
@@ -31,5 +32,11 @@ public class UnitManager {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 }

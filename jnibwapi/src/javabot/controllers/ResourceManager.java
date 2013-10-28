@@ -7,7 +7,7 @@ import javabot.types.UnitType.UnitTypes;
 import javabot.JavaBot;
 import javabot.models.Unit;
 
-public class ResourceManager {
+public class ResourceManager implements Manager {
 	private static ArrayList<Unit> mineralWorkers = new ArrayList<Unit>();
 	private static ArrayList<Unit> gasWorkers = new ArrayList<Unit>();
 
@@ -30,7 +30,7 @@ public class ResourceManager {
 	}
 
 
-	public static void gameStart(ArrayList<Unit> units) {
+	public void gameStart(ArrayList<Unit> units) {
 		mineralWorkers = units;
 		int counter = 0;
 
@@ -46,7 +46,7 @@ public class ResourceManager {
 		}
 	}
 
-	public static void assignUnit(Unit u) {
+	public void assignUnit(Unit u) {
 		if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
 			mineralWorkers.add(u);
 		}
@@ -72,14 +72,15 @@ public class ResourceManager {
 		}
 	}
 
-	public static int mineralUnitCount() {
+	public int mineralUnitCount() {
 		return mineralWorkers.size();
 	}
 
-	public static int gasUnitCount() {
+	public int gasUnitCount() {
 		return gasWorkers.size();
 	}
 
+	@Override
 	public void act() {
 		for (Unit unit : gasWorkers) {
 			if (unit.isIdle()) {
@@ -133,5 +134,11 @@ public class ResourceManager {
 			JavaBot.requestUnit(UnitTypes.Protoss_Assimilator.ordinal());
 			assimilatorRequested = true;
 		}
+	}
+
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 }

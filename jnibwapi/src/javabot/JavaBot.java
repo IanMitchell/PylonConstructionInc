@@ -5,6 +5,7 @@ import java.util.*;
 
 import javabot.controllers.ArmyManager;
 import javabot.controllers.BuildManager;
+import javabot.controllers.Manager;
 import javabot.controllers.ResourceManager;
 import javabot.controllers.ScoutManager;
 import javabot.controllers.TrashManager;
@@ -20,12 +21,7 @@ public class JavaBot implements BWAPIEventListener {
 	public static int homePositionX;
 	public static int homePositionY;
 	
-	private ArmyManager armyManager = ArmyManager.getInstance();
-	private BuildManager buildManager = BuildManager.getInstance();
-	private ResourceManager resourceManager = ResourceManager.getInstance();
-	private ScoutManager scoutManager = ScoutManager.getInstance();
-	private TrashManager trashManager = TrashManager.getInstance();
-	private UnitManager unitManager = UnitManager.getInstance();
+	private HashMap<String, Manager> Managers = new HashMap<String, Manager>();
 	
 	private static Set<Integer> buildingRequests = new HashSet<Integer>();
 	private static Set<Integer> armyRequests = new HashSet<Integer>();
@@ -68,15 +64,22 @@ public class JavaBot implements BWAPIEventListener {
 		bwapi.printText("This map is called "+bwapi.getMap().getName());
 		bwapi.printText("Enemy race ID: "+String.valueOf(bwapi.getEnemies().get(0).getRaceID()));	// Z=0,T=1,P=2
 		
-		// ==========================================================
+		// Managers.put(ArmyManager.class.getSimpleName(), ArmyManager.getInstance());
+		Managers.put(BuildManager.class.getSimpleName(), BuildManager.getInstance());
+		Managers.put(ResourceManager.class.getSimpleName(), ResourceManager.getInstance());
+		Managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
+		Managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
+		Managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
+		
+		//send the 5 probes to the resourceManager	
+		((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
 	}
 	
 	
 	// Method called once every second.
 	public void act() {
-		unitManager.act();
-		resourceManager.act();
-		buildManager.act();
+		for (Manager manager : Managers.values())
+			manager.act();
 	}
 	
 	
@@ -93,9 +96,13 @@ public class JavaBot implements BWAPIEventListener {
 
 		}
 		
+		for (Manager manager : Managers.values())
+			manager.gameUpdate();
+		
 		// Draw debug information on screen
 		drawDebugInfo();
 
+		
 		// Call the act() method every 30 frames
 		if (bwapi.getFrameCount() % 30 == 0) {
 			act();

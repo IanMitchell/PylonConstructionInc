@@ -1,5 +1,5 @@
 package javabot.controllers;
-public class TrashManager {
+public class TrashManager implements Manager {
 	private static TrashManager instance = null;
 	
 	private TrashManager() {
@@ -11,6 +11,18 @@ public class TrashManager {
 			instance = new TrashManager();
 		}
 		return instance;
+	}
+
+	@Override
+	public void act() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

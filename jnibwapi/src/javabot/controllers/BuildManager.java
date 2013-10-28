@@ -6,7 +6,7 @@ import javabot.JavaBot;
 import javabot.models.Unit;
 import javabot.types.UnitType.UnitTypes;
 
-public class BuildManager {
+public class BuildManager implements Manager {
 	private static BuildManager instance = null;
 	
 	private BuildManager() {
@@ -20,6 +20,7 @@ public class BuildManager {
 		return instance;
 	}
 	
+	@Override
 	public void act() {
 		// Build pylons if we are low on supply (if free supply is less than 3).
 		if (((JavaBot.bwapi.getSelf().getSupplyTotal() - JavaBot.bwapi.getSelf().getSupplyUsed())/2) < 3) {
@@ -122,6 +123,12 @@ public class BuildManager {
 		if (ret.x == -1)
 			JavaBot.bwapi.printText("Unable to find suitable build position for "+JavaBot.bwapi.getUnitType(buildingTypeID).getName());
 		return ret;
+	}
+
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
