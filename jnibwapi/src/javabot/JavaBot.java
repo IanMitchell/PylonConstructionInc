@@ -71,8 +71,8 @@ public class JavaBot implements BWAPIEventListener {
 		Managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
 		Managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
 		
-		//send the 5 probes to the resourceManager	
-		((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
+		
+		
 	}
 	
 	
@@ -93,7 +93,9 @@ public class JavaBot implements BWAPIEventListener {
 			if (cc == -1) cc = BuildManager.getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
 			homePositionX = bwapi.getUnit(cc).getX();
 			homePositionY = bwapi.getUnit(cc).getY();
-
+		
+			//send the 5 probes to the resourceManager	
+			((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
 		}
 		
 		for (Manager manager : Managers.values())
