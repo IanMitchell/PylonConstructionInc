@@ -37,11 +37,11 @@ public class ResourceManager implements Manager {
 		for (Unit neu : JavaBot.bwapi.getNeutralUnits()) {
 			if (neu.getTypeID() == UnitTypes.Resource_Mineral_Field.ordinal()) {
 				mineralNodes.add(neu);
-			}
-
-			if (counter < units.size()) {
-				JavaBot.bwapi.rightClick(mineralWorkers.get(counter).getID(), neu.getID());
-				counter++;
+			
+				if (counter < units.size()) {
+					JavaBot.bwapi.rightClick(mineralWorkers.get(counter).getID(), neu.getID());
+					counter++;
+				}
 			}
 		}
 	}
