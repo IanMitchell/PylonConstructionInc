@@ -39,6 +39,8 @@ public class ScoutManager implements Manager {
 			}
 		}
 	}
+	
+	//ok
 
 	@Override
 	public void gameUpdate() {
