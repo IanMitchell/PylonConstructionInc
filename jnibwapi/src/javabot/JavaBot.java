@@ -105,7 +105,11 @@ public class JavaBot implements BWAPIEventListener {
 			homePositionX = bwapi.getUnit(cc).getX();
 			homePositionY = bwapi.getUnit(cc).getY();
 		
-			//send the 5 probes to the resourceManager	
+			//send 4 probes to the resourceManager and 1 to scoutManager to test scouting
+			//ArrayList<Unit> probes = bwapi.getMyUnits();
+			//Unit scout = probes.remove(4);
+			//((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(probes);
+			//((ScoutManager) Managers.get(ScoutManager.class.getSimpleName())).assignUnit(scout);
 			((ResourceManager) Managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
 		}
 		
@@ -170,6 +174,6 @@ public class JavaBot implements BWAPIEventListener {
 	
 	public static void needsScout() {
 		Unit scout = ResourceManager.requestScout();
-		ScoutManager.setScout(scout);
+		//ScoutManager.setScout(scout);
 	}
 }

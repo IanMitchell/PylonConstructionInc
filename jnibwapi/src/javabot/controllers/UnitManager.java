@@ -25,10 +25,18 @@ public class UnitManager implements Manager {
 			if (unit.getTypeID() == UnitTypes.Protoss_Nexus.ordinal()) {
 				// if it's training queue is empty
 				if (unit.getTrainingQueueSize() == 0) {
-					// check if we have enough minerals and supply, and (if we do) train one worker (Terran_SCV)
+					// check if we have enough minerals and supply, and (if we do) train one worker (Probe)
 					if ((JavaBot.bwapi.getSelf().getMinerals() >= 50) &&
 				     (JavaBot.bwapi.getSelf().getSupplyTotal()-JavaBot.bwapi.getSelf().getSupplyUsed() >= 2)) 
 						JavaBot.bwapi.train(unit.getID(), UnitTypes.Protoss_Probe.ordinal());
+				}
+			}
+			else if(unit.getTypeID() == UnitTypes.Protoss_Gateway.ordinal()) {
+				if(unit.getTrainingQueueSize() == 0) {
+					if((JavaBot.bwapi.getSelf().getMinerals() >= 50) &&
+					 (JavaBot.bwapi.getSelf().getSupplyTotal()-JavaBot.bwapi.getSelf().getSupplyUsed() >= 2)) {
+						 JavaBot.bwapi.train(unit.getID(), UnitTypes.Protoss_Zealot.ordinal());
+					 }
 				}
 			}
 		}

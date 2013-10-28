@@ -21,8 +21,6 @@ public class Squad {
 		status = IDLE;
 		squad = new ArrayList<Unit>();
 		enemies = new ArrayList<Unit>();
-		rallyX = 1000;
-		rallyY = 1000;
 	}
 	
 	public void update() {

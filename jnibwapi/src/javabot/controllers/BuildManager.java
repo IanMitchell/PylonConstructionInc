@@ -8,9 +8,10 @@ import javabot.types.UnitType.UnitTypes;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
+	private boolean hasPylon;
 	
 	private BuildManager() {
-		
+		hasPylon = false;
 	}
 	
 	public static BuildManager getInstance() {
@@ -35,10 +36,39 @@ public class BuildManager implements Manager {
 					// order our worker to build it
 					if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Pylon.ordinal()))) {
 						JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Pylon.ordinal());
+						hasPylon = true;
 					}
 				}
 			}
 		}
+
+		int numGates = 0;
+		for(Unit unit : JavaBot.bwapi.getMyUnits()) {
+			if(unit.getID() == UnitTypes.Protoss_Gateway.ordinal()) {
+				numGates++;
+			}
+		}
+		//build first gateway
+		if(numGates <= 2) {
+			if (JavaBot.bwapi.getSelf().getSupplyTotal() > 12) {
+				if(JavaBot.bwapi.getSelf().getMinerals() >= 150) {
+					int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+					if (worker != -1) {
+						// if we found him, try to select appropriate build tile position for supply depot (near our home base)
+						Point buildTile = getBuildTile(worker, UnitTypes.Protoss_Gateway.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+						// if we found a good build position, and we aren't already constructing a Supply Depot, 
+						// order our worker to build it
+						if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Gateway.ordinal()))) {
+							JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Gateway.ordinal());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public boolean hasPylon() {
+		return hasPylon;
 	}
 	
 	// Returns true if we are currently constructing the building of a given type.
