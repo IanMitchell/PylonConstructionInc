@@ -60,19 +60,15 @@ public class JavaBot implements BWAPIEventListener {
 		// initialize some data structures (or do something similar) 
 		// if needed. For example, you should maintain a memory of seen 
 		// enemy buildings.
-		
 		bwapi.printText("This map is called "+bwapi.getMap().getName());
 		bwapi.printText("Enemy race ID: "+String.valueOf(bwapi.getEnemies().get(0).getRaceID()));	// Z=0,T=1,P=2
 		
-		// Managers.put(ArmyManager.class.getSimpleName(), ArmyManager.getInstance());
+		Managers.put(ArmyManager.class.getSimpleName(), ArmyManager.getInstance());
 		Managers.put(BuildManager.class.getSimpleName(), BuildManager.getInstance());
 		Managers.put(ResourceManager.class.getSimpleName(), ResourceManager.getInstance());
 		Managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
 		Managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
 		Managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
-		
-		
-		
 	}
 	
 	
