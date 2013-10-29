@@ -56,7 +56,7 @@ public class JavaBot implements BWAPIEventListener {
 		
 		// set game speed to 30 (0 is the fastest. Tournament speed is 20)
 		// You can also change the game speed from within the game by "/speed X" command.
-		bwapi.setGameSpeed(30);
+		bwapi.setGameSpeed(20);
 		
 		// analyze the map
 		bwapi.loadMapData(true);
@@ -143,7 +143,7 @@ public class JavaBot implements BWAPIEventListener {
 			assignUnit(bwapi.getUnit(unitID), "ResourceManager");
 		}
 		else if (type.isAttackCapable() || type.isSpellcaster()) {
-			bwapi.printText("Assigning attacking unit to ResourceManager");
+			bwapi.printText("Assigning attacking unit to ArmyManager");
 			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
 		}
 		else if (type.isBuilding()) {

@@ -36,16 +36,16 @@ public class ArmyManager implements Manager {
 	}
 
 	public void gameUpdate() {
-		for(Unit unit : JavaBot.bwapi.getMyUnits()) {
+		/*for(Unit unit : JavaBot.bwapi.getMyUnits()) {
 			if(unit.getTypeID() == UnitTypes.Protoss_Zealot.ordinal()) {
 				if(!assigned.contains(unit)) {
 					assignUnit(unit);
 					assigned.add(unit);
 				}
 			}
-		}
+		}*/
 		for(Squad squad : squads) {
-			squad.act();
+			squad.update();
 		}
 	}
 }
