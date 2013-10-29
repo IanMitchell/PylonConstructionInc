@@ -24,7 +24,7 @@ public class ScoutManager implements Manager {
 	}
 
 	@Override
-	public void act() {
+	/*public void act() {
 		for(Unit scout : scouts) {
 			for(BaseLocation base : bases) {
 				//bwapi.isExplored seems to be broken????
@@ -38,9 +38,19 @@ public class ScoutManager implements Manager {
 				}
 			}
 		}
+	}*/
+	
+	public void act() {
+		for(Unit scout : scouts){
+			for(BaseLocation base : bases) {
+				if(!(scout.isMoving())){
+					JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
+				}
+			}
+		}
 	}
 	
-	//ok
+	
 
 	@Override
 	public void gameUpdate() {
