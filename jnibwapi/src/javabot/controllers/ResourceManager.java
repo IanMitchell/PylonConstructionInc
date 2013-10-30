@@ -142,9 +142,20 @@ public class ResourceManager implements Manager {
 		
 	}
 	
-	public static Unit requestScout() {
-		//Gives up a worker if the initial build is ready, so it can grow up and be a scout
-		//If not ready, returns null.
+	public static Unit requestWorker() {
+		//release a worker
+		for(Unit worker : mineralWorkers) {
+			if(worker.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
+				if(worker.isCompleted() && worker.getHitPoints() > 0 && worker.isExists()) {
+					mineralWorkers.remove(worker);
+					return worker;
+				}
+			}
+		}
 		return null;
+	}
+	
+	public int numWorkers() {
+		return mineralWorkers.size() + gasWorkers.size();
 	}
 }

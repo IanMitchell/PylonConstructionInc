@@ -10,6 +10,8 @@ public class ArmyManager implements Manager {
 	private static ArmyManager instance = null;
 	private ArrayList<Squad> squads;
 	private HashSet<Unit> assigned;
+	private int enemyMainX = 0;
+	private int enemyMainY = 0;
 	
 	private ArmyManager() {
 		squads = new ArrayList<Squad>();
@@ -26,26 +28,34 @@ public class ArmyManager implements Manager {
 	
 	@Override
 	public void assignUnit(Unit unit) {
-		Squad squad = squads.get(0);
-		squad.assignUnit(unit);
+		if(squads.size() == 0) {
+			newSquad();
+		}
+		squads.get(0).assignUnit(unit);
 	}
 
 
 	public void act() {
 		
 	}
+	
+	private void newSquad() {
+		Squad squad = new Squad();
+		squad.setRallyPoint(enemyMainX, enemyMainY);
+		squads.add(squad);
+	}
 
 	public void gameUpdate() {
-		/*for(Unit unit : JavaBot.bwapi.getMyUnits()) {
-			if(unit.getTypeID() == UnitTypes.Protoss_Zealot.ordinal()) {
-				if(!assigned.contains(unit)) {
-					assignUnit(unit);
-					assigned.add(unit);
-				}
-			}
-		}*/
 		for(Squad squad : squads) {
 			squad.update();
+		}
+	}
+	
+	public void setEnemyMain(int x, int y) {
+		enemyMainX = x;
+		enemyMainY = y;
+		for(Squad squad : squads) {
+			squad.setRallyPoint(enemyMainX, enemyMainY);
 		}
 	}
 }
