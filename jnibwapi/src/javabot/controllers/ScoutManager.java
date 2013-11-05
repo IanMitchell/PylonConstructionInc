@@ -46,4 +46,14 @@ public class ScoutManager implements Manager {
 	public int numScouts() {
 		return scoutSquads.size();
 	}
+
+	@Override
+	public int removeUnit(int unitId) {
+		for(int i=0; i<scoutSquads.size(); i++) {
+			ScoutSquad scout = scoutSquads.get(i);
+			if (unitId == scout .getUnitId())
+				return scoutSquads.remove(i).getUnitId();
+		}
+		return -1;
+	}
 }

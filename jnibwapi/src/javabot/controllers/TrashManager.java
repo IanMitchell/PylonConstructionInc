@@ -34,4 +34,10 @@ public class TrashManager implements Manager {
 		
 	}
 
+	@Override
+	public int removeUnit(int unitId) {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
 }

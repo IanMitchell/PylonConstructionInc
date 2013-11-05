@@ -35,6 +35,12 @@ public class ScoutSquad extends Squad {
 				JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
 				status = RETREATING;
 			}
+			else if (status == RETREATING) {
+				//notify javabot to reassign worker (back to resource manager)
+				if (scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+					JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
+				
+			}
 		}
 	}
 	
@@ -105,5 +111,9 @@ public class ScoutSquad extends Squad {
 				}
 			}
 		}
+	}
+
+	public int getUnitId() {
+		return scout.getID();
 	}
 }

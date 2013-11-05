@@ -12,4 +12,11 @@ public interface Manager {
 	
 	//adds unit to the Manager
 	public void assignUnit(Unit unit);
+	
+	/**
+	 * Removes unit from Manager
+	 * @param unitId id of unit
+	 * @return id of removed unit
+	 */
+	public int removeUnit(int unitId);
 }

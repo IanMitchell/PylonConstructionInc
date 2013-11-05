@@ -1,6 +1,9 @@
 package javabot.controllers;
 
 import java.awt.Point;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import javabot.JavaBot;
 import javabot.models.Unit;
@@ -8,11 +11,11 @@ import javabot.types.UnitType.UnitTypes;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
-	private boolean hasPylon;
-	private int numGates=0;
+	
+	//list of buildings. key represents ordinal of UnitTypes, value list of that unit
+	private HashMap<Integer, HashSet<Integer>> buildings = new HashMap<Integer, HashSet<Integer>>();
 	
 	private BuildManager() {
-		hasPylon = false;
 	}
 	
 	public static BuildManager getInstance() {
@@ -37,19 +40,13 @@ public class BuildManager implements Manager {
 					// order our worker to build it
 					if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Pylon.ordinal()))) {
 						JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Pylon.ordinal());
-						hasPylon = true;
 					}
 				}
 			}
 		}
 
-		for(Unit unit : JavaBot.bwapi.getMyUnits()) {
-			if(unit.getTypeID() == UnitTypes.Protoss_Gateway.ordinal()) {
-				numGates++;
-			}
-		}
 		//build first gateway
-		if(numGates <= 2) {
+		if(getBuildingCount(UnitTypes.Protoss_Gateway.ordinal()) <= 2) {
 			if (JavaBot.bwapi.getSelf().getSupplyTotal() > 12) {
 				if(JavaBot.bwapi.getSelf().getMinerals() >= 150) {
 					int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
@@ -67,8 +64,13 @@ public class BuildManager implements Manager {
 		}
 	}
 	
-	public boolean hasPylon() {
-		return hasPylon;
+	/**
+	 * Returns count of requested building
+	 * @param type key to search for 
+	 * @return
+	 */
+	public int getBuildingCount(int type) {
+		return buildings.containsKey(type) ? buildings.get(type).size() : 0;
 	}
 	
 	// Returns true if we are currently constructing the building of a given type.
@@ -84,7 +86,7 @@ public class BuildManager implements Manager {
 	
 	// Returns the id of a unit of a given type, that is closest to a pixel position (x,y), or -1 if we
     // don't have a unit of this type
-    public static int getNearestUnit(int unitTypeID, int x, int y) {
+    public int getNearestUnit(int unitTypeID, int x, int y) {
     	int nearestID = -1;
 	    double nearestDist = 9999999;
 	    for (Unit unit : JavaBot.bwapi.getMyUnits()) {
@@ -131,17 +133,7 @@ public class BuildManager implements Manager {
 							ret.x = i; ret.y = j;
 							return ret;
 						}
-						// creep for Zerg (this may not be needed - not tested yet)
-						if (JavaBot.bwapi.getUnitType(buildingTypeID).isRequiresCreep()) {
-							boolean creepMissing = false;
-							for (int k=i; k<=i+JavaBot.bwapi.getUnitType(buildingTypeID).getTileWidth(); k++) {
-								for (int l=j; l<=j+JavaBot.bwapi.getUnitType(buildingTypeID).getTileHeight(); l++) {
-									if (!JavaBot.bwapi.hasCreep(k, l)) creepMissing = true;
-									break;
-								}
-							}
-							if (creepMissing) continue; 
-						}
+						
 						// psi power for Protoss (this seems to work out of the box)
 						if (JavaBot.bwapi.getUnitType(buildingTypeID).isRequiresPsi()) {}
 					}
@@ -163,8 +155,15 @@ public class BuildManager implements Manager {
 
 	@Override
 	public void assignUnit(Unit unit) {
+		if (!buildings.containsKey(unit.getTypeID()))
+			buildings.put(unit.getTypeID(), new HashSet<Integer>());
+		buildings.get(unit.getTypeID()).add(unit.getID());
+	}
+
+	@Override
+	public int removeUnit(int unitId) {
 		// TODO Auto-generated method stub
-		
+		return -1;
 	}
 
 }

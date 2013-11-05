@@ -30,8 +30,12 @@ public class ResourceManager implements Manager {
 	}
 
 	public void gameStart(ArrayList<Unit> units) {
-		mineralWorkers = units;
 		int counter = 0;
+		
+		//prevent base from being added
+		for (Unit unit : units)
+			if (unit.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+				mineralWorkers.add(unit);
 
 		for (Unit neu : JavaBot.bwapi.getNeutralUnits()) {
 			if (neu.getTypeID() == UnitTypes.Resource_Mineral_Field.ordinal()) {
@@ -47,10 +51,10 @@ public class ResourceManager implements Manager {
 
 	@Override
 	public void assignUnit(Unit u) {
-		if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
+		if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && !mineralWorkers.contains(u)) {
 			mineralWorkers.add(u);
 		}
-		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
+		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && !gasWorkers.contains(u)) {
 			gasNodes.add(u);
 			
 			if (mineralWorkers.size() > 3) {
@@ -142,6 +146,7 @@ public class ResourceManager implements Manager {
 		
 	}
 	
+	/*
 	public static Unit requestWorker() {
 		//release a worker
 		for(Unit worker : mineralWorkers) {
@@ -154,8 +159,26 @@ public class ResourceManager implements Manager {
 		}
 		return null;
 	}
+	*/
 	
 	public int numWorkers() {
 		return mineralWorkers.size() + gasWorkers.size();
+	}
+
+	@Override
+	public int removeUnit(int unitId) {
+		int maxUnits = Math.max(mineralWorkers.size(), gasWorkers.size());
+		for (int i=0; i < maxUnits; i++) {
+			if (i < mineralWorkers.size() && mineralWorkers.get(i).getID() == unitId) {
+				JavaBot.bwapi.printText("Removed mineral worker");
+				return mineralWorkers.remove(i).getID();
+			}
+			else if (i < gasWorkers.size() && gasWorkers.get(i).getID() == unitId) {
+				JavaBot.bwapi.printText("Removed gas worker");
+				return gasWorkers.remove(i).getID();
+			}
+		}
+				
+		return -1;
 	}
 }

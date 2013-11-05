@@ -21,7 +21,7 @@ public class JavaBot implements BWAPIEventListener {
 	public static int homePositionX;
 	public static int homePositionY;
 	
-	private HashMap<String, Manager> managers = new HashMap<String, Manager>();
+	private static HashMap<String, Manager> managers = new HashMap<String, Manager>();
 	
 	private static Set<Integer> buildingRequests = new HashSet<Integer>();
 	private static Set<Integer> armyRequests = new HashSet<Integer>();
@@ -82,6 +82,7 @@ public class JavaBot implements BWAPIEventListener {
 	public void act() {
 		for (Manager manager : managers.values())
 			manager.act();
+		
 		if (hasPriority == Priority.ARMY && armyQueue.size() > 0) {
 			//Tell ArmyManager to build top unit in queue
 		}
@@ -99,19 +100,21 @@ public class JavaBot implements BWAPIEventListener {
 		
 		// Remember our homeTilePosition at the first frame
 		if (bwapi.getFrameCount() == 1) {
-			int cc = BuildManager.getNearestUnit(UnitTypes.Terran_Command_Center.ordinal(), 0, 0);
-			if (cc == -1) cc = BuildManager.getNearestUnit(UnitTypes.Zerg_Hatchery.ordinal(), 0, 0);
-			if (cc == -1) cc = BuildManager.getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
+			int cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Terran_Command_Center.ordinal(), 0, 0);
+			if (cc == -1) cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Zerg_Hatchery.ordinal(), 0, 0);
+			if (cc == -1) cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
 			homePositionX = bwapi.getUnit(cc).getX();
 			homePositionY = bwapi.getUnit(cc).getY();
 		
-			((ResourceManager) managers.get(ResourceManager.class.getSimpleName())).gameStart(bwapi.getMyUnits());
+			ResourceManager.getInstance().gameStart(bwapi.getMyUnits());
 		}
 		
+		/*
 		if(ResourceManager.getInstance().numWorkers() == 10 && ScoutManager.getInstance().numScouts() == 0) {
 			bwapi.printText("Assigning a scout");
 			needsScout();
 		}
+		*/
 		
 		for (Manager manager : managers.values())
 			manager.gameUpdate();
@@ -127,10 +130,10 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	
 	/**
-	 * Event fired when unit is created.
+	 * Event fired when unit has been created or when building has started construction 
 	 * Assigns probes to ResourceManager
 	 * Assigns combat units to ArmyManager
-	 * Assigns buildings to ...?
+	 * Assigns buildings to BuildingManager
 	 * @param unitID id of unit created
 	 */
 	public void unitCreate(int unitID) {
@@ -140,15 +143,23 @@ public class JavaBot implements BWAPIEventListener {
 		
 		if (type.isWorker()) {
 			bwapi.printText("Assigning worker to ResourceManager");
-			assignUnit(bwapi.getUnit(unitID), "ResourceManager");
+			assignUnit(bwapi.getUnit(unitID), ResourceManager.class.getSimpleName());
 		}
 		else if (type.isAttackCapable() || type.isSpellcaster()) {
 			bwapi.printText("Assigning attacking unit to ArmyManager");
 			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
 		}
 		else if (type.isBuilding()) {
-			bwapi.printText("Assigning building to...?");
-			// TODO 
+			int builderId = bwapi.getUnit(BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), u.getX(), u.getY())).getID();
+			
+			bwapi.printText("Assigning building to BuildingManager");
+			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
+			
+			//reassigns worker from resource mgr -> scout mgr if first pylon built
+			if (u.getTypeID() == UnitTypes.Protoss_Pylon.ordinal() && BuildManager.getInstance().getBuildingCount(UnitTypes.Protoss_Pylon.ordinal()) == 1) {
+				bwapi.printText("Assigning scout to ScoutManager");
+				assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
+			}
 		}
 	}
 	
@@ -157,13 +168,25 @@ public class JavaBot implements BWAPIEventListener {
 	 * @param unit unit to add
 	 * @param manager manager to assign to
 	 */
-	public void assignUnit(Unit unit, String manager) {
+	private static void assignUnit(Unit unit, String manager) {
 		assignedUnits.add(unit);
 		managers.get(manager).assignUnit(unit);
 	}
 	
+	/**
+	 * Reassings unit
+	 * @param unitId
+	 * @param fromManager
+	 */
+	public static void reassignUnit(int unitId, String fromManager) {
+		Unit unit = bwapi.getUnit(managers.get(fromManager).removeUnit(unitId));
+		
+		if (unit.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+			assignUnit(unit, ResourceManager.class.getSimpleName());
+		
+	}
+	
 	// Draws debug information on the screen. 
-	// Reimplement this function however you want. 
 	public void drawDebugInfo() {
 
 		// Draw our home position.
@@ -194,10 +217,12 @@ public class JavaBot implements BWAPIEventListener {
         }
 	}
 	
+	/*
 	public static void needsScout() {
 		Unit scout = ResourceManager.requestWorker();
 		ScoutManager.getInstance().assignUnit(scout);
 	}
+	*/
 
 	// Some additional event-related methods.
 	public void gameEnded() {}
@@ -212,4 +237,5 @@ public class JavaBot implements BWAPIEventListener {
 	public void unitMorph(int unitID) {}
 	public void unitShow(int unitID) {}
 	public void keyPressed(int keyCode) {}
+	
 }

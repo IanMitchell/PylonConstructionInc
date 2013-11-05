@@ -53,4 +53,10 @@ public class UnitManager implements Manager {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public int removeUnit(int unitId) {
+		// TODO Auto-generated method stub
+		return -1;
+	}
 }
