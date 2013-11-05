@@ -1,6 +1,5 @@
 package javabot.controllers;
 
-import java.awt.Point;
 import java.util.*;
 
 import javabot.JavaBot;
@@ -10,14 +9,12 @@ import javabot.types.UnitType.UnitTypes;
 public class ArmyManager implements Manager {
 	private static ArmyManager instance = null;
 	private ArrayList<Squad> squads;
-	private ArrayList<ChokePoint> chokePoints;
 	private int enemyMainX = 0;
 	private int enemyMainY = 0;
 	
 	private ArmyManager() {
 		squads = new ArrayList<Squad>();
 		squads.add(new Squad());
-		chokePoints = JavaBot.bwapi.getMap().getChokePoints();
 	}
 	
 	public static ArmyManager getInstance() {
@@ -64,11 +61,5 @@ public class ArmyManager implements Manager {
 	public int removeUnit(int unitId) {
 		// TODO Auto-generated method stub
 		return -1;
-	}
-	
-	
-	public Point getClosestChokePoint(Squad squad) {
-		
-		return null;
 	}
 }
