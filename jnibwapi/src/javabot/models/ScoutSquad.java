@@ -1,5 +1,8 @@
 package javabot.models;
 
+import java.awt.Point;
+import java.util.ArrayList;
+
 import javabot.JavaBot;
 import javabot.controllers.ArmyManager;
 import javabot.controllers.ScoutManager;
@@ -12,10 +15,19 @@ public class ScoutSquad extends Squad {
 	private boolean baseFound = false;
 	private Unit weakestWorker = null;
 	private static int SCOUT_RADIUS = 200;
+	protected Point rallyPoint;
+	protected Point squadPoint;
+	protected Point homeChokePoint;
+	protected Point lastOrderPoint;
 	
 	public ScoutSquad(Unit scout) {
-		this.scout = scout;
 		status = IDLE;
+		this.scout = scout;
+		enemies = new ArrayList<Unit>();
+		homeChokePoint = getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
+		squadPoint = new Point(scout.getX(), scout.getY());
+		rallyPoint = new Point(-1, -1);
+		lastOrderPoint = new Point(-1, -1);
 	}
 	
 	public void update() {
@@ -47,7 +59,7 @@ public class ScoutSquad extends Squad {
 	public void setEnemies() {
 		enemies.clear();
 		for(Unit enemy : JavaBot.bwapi.getEnemyUnits()) {
-			if(enemy.getX() - x <= SCOUT_RADIUS && enemy.getY() - y <= SCOUT_RADIUS) {
+			if(enemy.getX() - squadPoint.x <= SCOUT_RADIUS && enemy.getY() - squadPoint.y <= SCOUT_RADIUS) {
 				enemies.add(enemy);
 			}
 		}
@@ -90,15 +102,15 @@ public class ScoutSquad extends Squad {
 	}
 	
 	protected void updateSquadPos() {
-		x = scout.getX();
-		y = scout.getY();
-		JavaBot.bwapi.drawCircle(x, y, SCOUT_RADIUS, SCOUT_RADIUS, false, false);
+		squadPoint.x = scout.getX();
+		squadPoint.y = scout.getY();
+		JavaBot.bwapi.drawCircle(squadPoint.x, squadPoint.y, SCOUT_RADIUS, SCOUT_RADIUS, false, false);
 	}
 	
 	public void scout() {
 		if(!scout.isMoving()) {
 			for(BaseLocation base : ScoutManager.bases) {
-				if(Math.abs(base.getX() - x) < 150 && Math.abs(base.getY() - y) < 150) {
+				if(Math.abs(base.getX() - squadPoint.x) < 150 && Math.abs(base.getY() - squadPoint.y) < 150) {
 					continue;
 				}
 				if(!ScoutManager.mainFound) {

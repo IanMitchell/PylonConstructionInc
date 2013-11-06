@@ -15,51 +15,50 @@ public class Squad {
 	public static final int IDLE = 2;
 	public static final int RETREATING = 3;
 	protected static final int NEARBY_RADIUS = 400;
-	protected int x;
-	protected int y;
-	protected int rallyX;
-	protected int rallyY;
 	protected int status;
+	protected Point rallyPoint;
+	protected Point squadPoint;
 	protected Point homeChokePoint;
+	protected Point lastOrderPoint;
 
 	public Squad() {
 		status = IDLE;
 		squad = new ArrayList<Unit>();
 		enemies = new ArrayList<Unit>();
 		stragglers = new ArrayList<Unit>();
-		rallyX = 0;
-		rallyY = 0;
 		homeChokePoint = getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
+		rallyPoint = new Point(-1, -1);
+		lastOrderPoint = new Point(0, 0);
+		squadPoint = new Point(-1, -1);
 	}
 	
 	public void update() {
 		cleanSquad();
+		updateSquadPos();
 		if(squad.size() > 0) {
-			updateSquadPos();
+			moveStragglers();
 			setEnemies();
-			if (status == IDLE) {
-				if (squad.size() > 6) {
-					status = ATTACKING;
-				}
-				else {
-					move(getClosestChokePoint(getSquadCenter()));
-				}
+			int combatScore = combatSimScore();
+			int newStatus = 0;
+			Point latestOrder;
+			if(squad.size() >= 2 && combatScore >= 1) {
+				newStatus = ATTACKING;
+				latestOrder = rallyPoint;
 			}
-			else if (status == ATTACKING) {
-				if(combatSimulationScore() >= 1) {
-					moveToRallyPoint(rallyX, rallyY);
-				}
-				else {
-					status = RETREATING;
-				}
+			else {
+				newStatus = RETREATING;
+				latestOrder = homeChokePoint;
 			}
-			else if (status == DEFENDING) {
-				
-			}
-			else if (status == RETREATING) {
-				move(homeChokePoint);
-				if(combatSimulationScore() >= 1) {
-					moveToRallyPoint(rallyX, rallyY);
+			if(status != newStatus && !lastOrderPoint.equals(latestOrder)) {
+				JavaBot.bwapi.printText("New order");
+				status = newStatus;
+				lastOrderPoint = latestOrder;
+				moveToRallyPoint(lastOrderPoint, status);
+				if(status == ATTACKING) {
+					JavaBot.bwapi.printText("New order: Attacking (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
+				}
+				else if(status == DEFENDING) {
+					JavaBot.bwapi.printText("New order: Defending (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
 				}
 			}
 		}
@@ -74,15 +73,27 @@ public class Squad {
 			JavaBot.bwapi.move(unit.getID(), p.x, p.y);
 		}
 		for(Unit unit : stragglers) {
-			JavaBot.bwapi.move(unit.getID(), this.x, this.y);
+			JavaBot.bwapi.move(unit.getID(), squadPoint.x, squadPoint.y);
 		}
 	}
-	protected void moveToRallyPoint(int x, int y) {
+	
+	protected void moveToRallyPoint(Point p, int status) {
 		for(Unit unit : squad) {
-			JavaBot.bwapi.attack(unit.getID(), x, y);
+			if(status == ATTACKING) {
+				JavaBot.bwapi.attack(unit.getID(), p.x, p.y);
+			}
+			else if(status == DEFENDING) {
+				JavaBot.bwapi.move(unit.getID(), p.x, p.y);
+			}
 		}
 		for(Unit unit : stragglers) {
-			JavaBot.bwapi.move(unit.getID(), this.x, this.y);
+			JavaBot.bwapi.move(unit.getID(), squadPoint.x, squadPoint.y);
+		}
+	}
+	
+	protected void moveStragglers() {
+		for(Unit unit : stragglers) {
+			JavaBot.bwapi.move(unit.getID(), squadPoint.x, squadPoint.y);
 		}
 	}
 	
@@ -119,42 +130,48 @@ public class Squad {
 	public void setEnemies() {
 		enemies.clear();
 		for(Unit enemy : JavaBot.bwapi.getEnemyUnits()) {
-			if(Math.abs(enemy.getX() - x) <= NEARBY_RADIUS && Math.abs(enemy.getY() - y) <= NEARBY_RADIUS) {
+			if(Math.abs(enemy.getX() - squadPoint.x) <= NEARBY_RADIUS && Math.abs(enemy.getY() - squadPoint.y) <= NEARBY_RADIUS) {
 				enemies.add(enemy);
 			}
 		}
 	}
 	
 	public void setRallyPoint(int x, int y) {
-		rallyX = x;
-		rallyY = y;
+		rallyPoint.x = x;
+		rallyPoint.y = y;
 	}
 	
-	public int combatSimulationScore() {
+	public int combatSimScore() {
 		return squad.size() - enemies.size();
 	}
 	
 	protected void updateSquadPos() {
-		Point center = getSquadCenter();
-		JavaBot.bwapi.drawCircle((int)center.getX(), (int)center.getY(), NEARBY_RADIUS, NEARBY_RADIUS, false, false);
+		getSquadCenter();
+		JavaBot.bwapi.drawCircle(squadPoint.x, squadPoint.y, NEARBY_RADIUS, NEARBY_RADIUS, false, false);
 		for(Unit straggler : stragglers) {
-			if(Math.abs(straggler.getX() - center.getX()) <= NEARBY_RADIUS && Math.abs(straggler.getY() - center.getY()) <= NEARBY_RADIUS) {
-				stragglers.remove(straggler);
-				squad.add(straggler);
+			if(straggler.isCompleted()) {
+				if(Math.abs(straggler.getX() - squadPoint.x) <= NEARBY_RADIUS && Math.abs(straggler.getY() - squadPoint.y) <= NEARBY_RADIUS) {
+					JavaBot.bwapi.printText("Straggler added to Squad");
+					stragglers.remove(straggler);
+					squad.add(straggler);
+				}
 			}
 		}
+		getSquadCenter();
 	}
 	
-	protected Point getSquadCenter() {
-		x = 0;
-		y = 0;
-		for(Unit unit: squad) {
-			x += unit.getX();
-			y += unit.getY();
+	protected void getSquadCenter() {
+		if(squad.size() >= 1) {
+			squadPoint.x = 0;
+			squadPoint.y = 0;
+			for(Unit unit: squad) {
+				squadPoint.x += unit.getX();
+				squadPoint.y += unit.getY();
+			}
+			squadPoint.x = squadPoint.x / squad.size();
+			squadPoint.y = squadPoint.y / squad.size();
 		}
-		x = x / squad.size();
-		y = y / squad.size();
-		return new Point(x,y);
+		//return new Point(x,y);
 	}
 
 	/**
