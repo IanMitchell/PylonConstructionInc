@@ -1,125 +1,117 @@
 package javabot.models;
 
 import java.awt.Point;
-import java.util.ArrayList;
-
 import javabot.JavaBot;
 import javabot.controllers.ArmyManager;
 import javabot.controllers.ScoutManager;
 import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
+import javabot.util.BWColor;
 
 public class ScoutSquad extends Squad {
 	private Unit scout;
 	private static int DANGER = 4;
-	private boolean baseFound = false;
+	private static int SCOUTING = 5;
 	private Unit weakestWorker = null;
-	private static int SCOUT_RADIUS = 200;
-	protected Point rallyPoint;
-	protected Point squadPoint;
-	protected Point homeChokePoint;
-	protected Point lastOrderPoint;
+	private static int DANGER_RADIUS = 75;
+	private static int SCOUT_RADIUS = 300;
+	private int idleCount=0;
 	
 	public ScoutSquad(Unit scout) {
-		status = IDLE;
+		super();
 		this.scout = scout;
-		enemies = new ArrayList<Unit>();
-		homeChokePoint = getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
-		squadPoint = new Point(scout.getX(), scout.getY());
-		rallyPoint = new Point(-1, -1);
-		lastOrderPoint = new Point(-1, -1);
+		squadCenter = new Point(scout.getX(), scout.getY());
 	}
 	
+	@Override
 	public void update() {
 		if(scout.getHitPoints() > 0) {
 			if(status == IDLE) {
+				status = SCOUTING;
 				scout();
 			}
+			
 			updateSquadPos();
-			setEnemies();
-			analyzeArea();
-			if(baseFound && status != DANGER && weakestWorker != null) {
-				//JavaBot.bwapi.printText("Harassing workers");
-				harass(weakestWorker);
+			setEnemies(SCOUT_RADIUS);
+			status = analyzeArea();
+			
+			//idleCount is used because right before it scouts, it goes into idle. 
+			if ((status == IDLE || scout.isIdle()) && ++idleCount > 1) {
+				JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
 			}
-			else if (status == DANGER) {
-				//JavaBot.bwapi.printText("Dangerous: Scout retreating");
+			if(status ==  ATTACKING) {
+				harass(weakestWorker.getID());
+			}
+			if (status == DANGER) {
 				JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
 				status = RETREATING;
 			}
-			else if (status == RETREATING) {
-				//notify javabot to reassign worker (back to resource manager)
-				if (scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+			if (status == RETREATING) {
+				//reassign probe back to resource manager if we are closer to our homebase than to enemy 
+				if ((inRange(squadCenter, new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400) && 
+				 scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal()))
 					JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
-				
 			}
 		}
 	}
 	
-	public void setEnemies() {
-		enemies.clear();
-		for(Unit enemy : JavaBot.bwapi.getEnemyUnits()) {
-			if(enemy.getX() - squadPoint.x <= SCOUT_RADIUS && enemy.getY() - squadPoint.y <= SCOUT_RADIUS) {
-				enemies.add(enemy);
-			}
-		}
+	
+	private void harass(int enemyId) {
+		JavaBot.bwapi.attack(scout.getID(), enemyId);
 	}
 	
-	private void harass(Unit unit) {
-		JavaBot.bwapi.attack(scout.getID(), unit.getID());
-	}
-	
-	private void analyzeArea() {
+	private int analyzeArea() {
 		int attackingWorkers = 0;
-		status = IDLE;
+		
 		for(Unit enemy : enemies) {
 			UnitType type = JavaBot.bwapi.getUnitType(enemy.getTypeID());
 			if(type.isBuilding()) {
-				if(type.getID() == UnitTypes.Terran_Command_Center.ordinal()) {
-					JavaBot.bwapi.printText("Found main @ " + enemy.getX() + ", " + enemy.getY());
+				if(type.getID() == UnitTypes.Terran_Command_Center.ordinal() || 
+				 type.getID() == UnitTypes.Protoss_Nexus.ordinal() ||
+				 type.getID() == UnitTypes.Zerg_Lair.ordinal()) {
 					ArmyManager.getInstance().setEnemyMain(enemy.getX(), enemy.getY());
-					baseFound = true;
+					ScoutManager.mainFound = true; 
 				}
 			}
 			else if(type.isWorker()) {
-				if(enemy.isAttacking()) {
-					attackingWorkers++;
-				}
-				if(weakestWorker == null) {
+				if (isStronger(enemy) || scout.getHitPoints() < 10)
+					return DANGER;
+				else if (enemy.isConstructing()) {
 					weakestWorker = enemy;
+					return ATTACKING;
 				}
-				if(enemy.getHitPoints() < weakestWorker.getHitPoints()) {
+				else if (weakestWorker != null && !isStronger(enemy) && inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS))
 					weakestWorker = enemy;
-				}
+				else if(inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS) && ++attackingWorkers > 1)
+					return DANGER;
 			}
-			else {
-				status = DANGER;
-			}
+			else
+				return DANGER;
 		}
-		if(attackingWorkers > 1) {
-			status = DANGER;
-		}
+		
+		if (weakestWorker != null)
+			return ATTACKING;
+		return SCOUTING;
+		
 	}
 	
+	@Override
 	protected void updateSquadPos() {
-		squadPoint.x = scout.getX();
-		squadPoint.y = scout.getY();
-		JavaBot.bwapi.drawCircle(squadPoint.x, squadPoint.y, SCOUT_RADIUS, SCOUT_RADIUS, false, false);
+		squadCenter.x = scout.getX();
+		squadCenter.y = scout.getY();
+		JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, DANGER_RADIUS, BWColor.RED, false, false);
+		JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, SCOUT_RADIUS, BWColor.GREEN, false, false);
 	}
 	
 	public void scout() {
 		if(!scout.isMoving()) {
 			for(BaseLocation base : ScoutManager.bases) {
-				if(Math.abs(base.getX() - squadPoint.x) < 150 && Math.abs(base.getY() - squadPoint.y) < 150) {
+				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;
-				}
-				if(!ScoutManager.mainFound) {
+				else if(!ScoutManager.mainFound) {
 					if(base.isStartLocation()) {
 						JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
 					}
-				}
-				else {
-					JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
 				}
 			}
 		}
@@ -128,4 +120,24 @@ public class ScoutSquad extends Squad {
 	public int getUnitId() {
 		return scout.getID();
 	}
+	
+	/**
+	 * compares probe against enemy miner
+	 * TERRAN HP = 60
+	 * DRONE HP = 40
+	 * PROBE HP = 20 + 20(shield)
+	 * @param enemy miner
+	 * @return true if probe will not win
+	 */
+	private boolean isStronger(Unit enemyWorker) {
+		int scoutHp = scout.getHitPoints() + scout.getShield();
+		
+		if (enemyWorker.getTypeID() == UnitTypes.Terran_SCV.ordinal())
+			return enemyWorker.getHitPoints() > (scoutHp + 20);
+		else if (enemyWorker.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+			return enemyWorker.getHitPoints() + enemyWorker.getShield() > scoutHp;
+		else
+			return enemyWorker.getHitPoints() > scoutHp;
+	}
 }
+

@@ -1,5 +1,6 @@
 package javabot.controllers;
 
+import java.awt.Point;
 import java.util.*;
 
 import javabot.JavaBot;
@@ -9,8 +10,7 @@ import javabot.types.UnitType.UnitTypes;
 public class ArmyManager implements Manager {
 	private static ArmyManager instance = null;
 	private ArrayList<Squad> squads;
-	private int enemyMainX = 0;
-	private int enemyMainY = 0;
+	private Point enemyMain;
 	
 	private ArmyManager() {
 		squads = new ArrayList<Squad>();
@@ -39,7 +39,7 @@ public class ArmyManager implements Manager {
 	
 	private void newSquad() {
 		Squad squad = new Squad();
-		squad.setRallyPoint(enemyMainX, enemyMainY);
+		squad.setRallyPoint(enemyMain);
 		squads.add(squad);
 	}
 
@@ -50,16 +50,19 @@ public class ArmyManager implements Manager {
 	}
 	
 	public void setEnemyMain(int x, int y) {
-		enemyMainX = x;
-		enemyMainY = y;
+		enemyMain = new Point(x,y);
 		for(Squad squad : squads) {
-			squad.setRallyPoint(enemyMainX, enemyMainY);
+			squad.setRallyPoint(enemyMain);
 		}
 	}
 
 	@Override
 	public int removeUnit(int unitId) {
-		// TODO Auto-generated method stub
-		return -1;
+		int id = -1;
+		
+		for(Squad squad : squads)
+			id = Math.max(squad.removeUnit(unitId), -1);
+		
+		return id;
 	}
 }

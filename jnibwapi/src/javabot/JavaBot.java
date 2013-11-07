@@ -56,7 +56,7 @@ public class JavaBot implements BWAPIEventListener {
 		
 		// set game speed to 30 (0 is the fastest. Tournament speed is 20)
 		// You can also change the game speed from within the game by "/speed X" command.
-		bwapi.setGameSpeed(25);
+		bwapi.setGameSpeed(20);
 		
 		// analyze the map
 		bwapi.loadMapData(true);
@@ -217,20 +217,18 @@ public class JavaBot implements BWAPIEventListener {
         }
 	}
 	
-	/*
-	public static void needsScout() {
-		Unit scout = ResourceManager.requestWorker();
-		ScoutManager.getInstance().assignUnit(scout);
+	public void unitDestroy(int unitID) {
+		for (Manager manager : managers.values())
+			manager.removeUnit(unitID);
 	}
-	*/
-
+	
 	// Some additional event-related methods.
 	public void gameEnded() {}
 	public void matchEnded(boolean winner) {}
 	public void nukeDetect(int x, int y) {}
 	public void nukeDetect() {}
 	public void playerLeft(int id) {}
-	public void unitDestroy(int unitID) {}
+	
 	public void unitDiscover(int unitID) {}
 	public void unitEvade(int unitID) {}
 	public void unitHide(int unitID) {}
