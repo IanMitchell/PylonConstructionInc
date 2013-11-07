@@ -38,12 +38,12 @@ public class ScoutManager implements Manager {
 	}
 	
 	public void act() {
-		if (status == 1) {
+		if (status == 1) { // Scout is alive
 			if (scoutSquads.size() == 0 || scoutSquads.get(0).getScout() == null) {
-				status = 0;
+				status = 0; // Scout is now dead
 			}
 		}
-		if (status == 0) {
+		if (status == 0) { // Scout is dead
 			JavaBot.requestUnit(UnitTypes.Protoss_Probe.ordinal());
 		}
 	}
@@ -58,7 +58,7 @@ public class ScoutManager implements Manager {
 	@Override
 	public void assignUnit(Unit unit) {
 		scoutSquads.add(new ScoutSquad(unit));
-		status = 1;
+		status = 1; // Scout is alive
 	}
 	
 	public int numScouts() {
@@ -69,8 +69,8 @@ public class ScoutManager implements Manager {
 	public int removeUnit(int unitId) {
 		for(int i=0; i<scoutSquads.size(); i++) {
 			ScoutSquad scout = scoutSquads.get(i);
-			if (unitId == scout .getUnitId()) {
-				status = 0;
+			if (unitId == scout.getUnitId()) {
+				status = 0; // Scout is dead
 				return scoutSquads.remove(i).getUnitId();
 			}
 		}
