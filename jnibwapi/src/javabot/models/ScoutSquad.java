@@ -9,7 +9,7 @@ import javabot.types.UnitType.UnitTypes;
 import javabot.util.BWColor;
 
 public class ScoutSquad extends Squad {
-	private Unit scout;
+	public Unit scout;
 	private static int DANGER = 4;
 	private static int SCOUTING = 5;
 	private Unit weakestWorker = null;
@@ -34,6 +34,8 @@ public class ScoutSquad extends Squad {
 			updateSquadPos();
 			setEnemies(SCOUT_RADIUS);
 			status = analyzeArea();
+			if (!ScoutManager.mainFound)
+				status = SCOUTING;
 			
 			//idleCount is used because right before it scouts, it goes into idle. 
 			if ((status == IDLE || scout.isIdle()) && ++idleCount > 1) {
@@ -49,8 +51,10 @@ public class ScoutSquad extends Squad {
 			if (status == RETREATING) {
 				//reassign probe back to resource manager if we are closer to our homebase than to enemy 
 				if ((inRange(squadCenter, new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400) && 
-				 scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal()))
+				 scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal())) {
 					JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
+					scout = null;
+				}
 			}
 		}
 	}
@@ -68,7 +72,8 @@ public class ScoutSquad extends Squad {
 			if(type.isBuilding()) {
 				if(type.getID() == UnitTypes.Terran_Command_Center.ordinal() || 
 				 type.getID() == UnitTypes.Protoss_Nexus.ordinal() ||
-				 type.getID() == UnitTypes.Zerg_Lair.ordinal()) {
+				 type.getID() == UnitTypes.Zerg_Lair.ordinal() ||
+				 type.getID() == UnitTypes.Zerg_Hatchery.ordinal()) {
 					ArmyManager.getInstance().setEnemyMain(enemy.getX(), enemy.getY());
 					ScoutManager.mainFound = true; 
 				}
@@ -85,6 +90,8 @@ public class ScoutSquad extends Squad {
 				else if(inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS) && ++attackingWorkers > 1)
 					return DANGER;
 			}
+			else if (!type.isAttackCapable()) 
+				continue;
 			else
 				return DANGER;
 		}
@@ -104,7 +111,7 @@ public class ScoutSquad extends Squad {
 	}
 	
 	public void scout() {
-		if(status == SCOUTING) {
+		if(status == SCOUTING || !scout.isMoving()) {
 			for(BaseLocation base : ScoutManager.bases) {
 				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;
@@ -115,6 +122,10 @@ public class ScoutSquad extends Squad {
 				}
 			}
 		}
+	}
+	
+	public Unit getScout() {
+		return scout;
 	}
 
 	public int getUnitId() {

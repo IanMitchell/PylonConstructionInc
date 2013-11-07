@@ -38,6 +38,11 @@ public class ScoutManager implements Manager {
 	}
 	
 	public void act() {
+		if (status == 1) {
+			if (scoutSquads.size() == 0 || scoutSquads.get(0).getScout() == null) {
+				status = 0;
+			}
+		}
 		if (status == 0) {
 			JavaBot.requestUnit(UnitTypes.Protoss_Probe.ordinal());
 		}
