@@ -49,6 +49,9 @@ public class BuildManager implements Manager {
 			}
 		}
 
+		
+		int unitSelected = 0; 
+		
 		//build first gateway
 		if(getBuildingCount(UnitTypes.Protoss_Gateway.ordinal()) <= 2) {
 			if (JavaBot.bwapi.getSelf().getSupplyTotal() > 12) {
@@ -56,11 +59,15 @@ public class BuildManager implements Manager {
 					int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 					if (worker != -1) {
 						// if we found him, try to select appropriate build tile position for supply depot (near our home base)
-						Point buildTile = getBuildTile(worker, UnitTypes.Protoss_Gateway.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-						// if we found a good build position, and we aren't already constructing a Supply Depot, 
-						// order our worker to build it
-						if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Gateway.ordinal()))) {
-							JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Gateway.ordinal());
+						if(unitSelected == 0) {
+							unitSelected = 1;
+							Point buildTile = getBuildTile(worker, UnitTypes.Protoss_Gateway.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+							// if we found a good build position, and we aren't already constructing a Supply Depot, 
+							// order our worker to build it
+							if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Gateway.ordinal()))) {
+								JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Gateway.ordinal());
+								//unitSelected = 0;
+							}
 						}
 					}
 				}
@@ -73,6 +80,9 @@ public class BuildManager implements Manager {
 	 * @param type key to search for 
 	 * @return
 	 */
+	
+	
+	
 	public int getBuildingCount(int type) {
 		return buildings.containsKey(type) ? buildings.get(type).size() : 0;
 	}
