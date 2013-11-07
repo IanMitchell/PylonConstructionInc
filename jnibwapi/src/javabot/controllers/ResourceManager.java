@@ -181,4 +181,8 @@ public class ResourceManager implements Manager {
 				
 		return -1;
 	}
+	
+	public Unit getScoutUnit() {
+		return mineralWorkers.remove(0);
+	}
 }

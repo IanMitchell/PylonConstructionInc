@@ -6,6 +6,7 @@ import javabot.JavaBot;
 import javabot.models.BaseLocation;
 import javabot.models.ScoutSquad;
 import javabot.models.Unit;
+import javabot.types.UnitType.UnitTypes;
 
 
 public class ScoutManager implements Manager {
@@ -13,6 +14,9 @@ public class ScoutManager implements Manager {
 	private ArrayList<ScoutSquad> scoutSquads;
 	public static ArrayList<BaseLocation> bases;
 	public static boolean mainFound;
+	
+	//-1 means no scout ever assigned. 0 means scout dead. 1 means scout is alive and kickin
+	private static int status = -1;
 	
 	private ScoutManager() {
 		scoutSquads = new ArrayList<ScoutSquad>();
@@ -28,7 +32,9 @@ public class ScoutManager implements Manager {
 	}
 	
 	public void act() {
-		
+		if (status == 0) {
+			JavaBot.requestUnit(UnitTypes.Protoss_Probe.ordinal());
+		}
 	}
 	
 
@@ -41,6 +47,7 @@ public class ScoutManager implements Manager {
 	@Override
 	public void assignUnit(Unit unit) {
 		scoutSquads.add(new ScoutSquad(unit));
+		status = 1;
 	}
 	
 	public int numScouts() {
@@ -51,8 +58,10 @@ public class ScoutManager implements Manager {
 	public int removeUnit(int unitId) {
 		for(int i=0; i<scoutSquads.size(); i++) {
 			ScoutSquad scout = scoutSquads.get(i);
-			if (unitId == scout .getUnitId())
+			if (unitId == scout .getUnitId()) {
+				status = 0;
 				return scoutSquads.remove(i).getUnitId();
+			}
 		}
 		return -1;
 	}

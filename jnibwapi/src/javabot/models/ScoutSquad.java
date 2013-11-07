@@ -104,7 +104,7 @@ public class ScoutSquad extends Squad {
 	}
 	
 	public void scout() {
-		if(!scout.isMoving()) {
+		if(status == SCOUTING) {
 			for(BaseLocation base : ScoutManager.bases) {
 				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;

@@ -36,6 +36,8 @@ public class JavaBot implements BWAPIEventListener {
 		
 	private static Priority hasPriority = Priority.ARMY;
 	
+	private static boolean alreadyGaveScout = false;
+	
 	public static void main(String[] args) {
 		new JavaBot();
 	}
@@ -158,7 +160,10 @@ public class JavaBot implements BWAPIEventListener {
 			//reassigns worker from resource mgr -> scout mgr if first pylon built
 			if (u.getTypeID() == UnitTypes.Protoss_Pylon.ordinal() && BuildManager.getInstance().getBuildingCount(UnitTypes.Protoss_Pylon.ordinal()) == 1) {
 				bwapi.printText("Assigning scout to ScoutManager");
-				assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
+				if (!alreadyGaveScout) {
+					alreadyGaveScout = true;
+					requestScout();
+				}
 			}
 		}
 	}
@@ -215,6 +220,11 @@ public class JavaBot implements BWAPIEventListener {
         else {
         	armyRequests.add(unit);
         }
+	}
+	
+	public static void requestScout() {
+		bwapi.printText("Assigning scout to ScoutManager");
+		assignUnit(ResourceManager.getInstance().getScoutUnit(), ScoutManager.class.getSimpleName());
 	}
 	
 	public void unitDestroy(int unitID) {
