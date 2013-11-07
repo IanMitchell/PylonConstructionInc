@@ -48,9 +48,21 @@ public class JavaBot implements BWAPIEventListener {
 	public void connected() {
 		bwapi.loadTypeData();
 	}
+	private void reset() {
+		managers = new HashMap<String, Manager>();
+		buildingRequests = new HashSet<Integer>();
+		armyRequests = new HashSet<Integer>();
+		workerRequests = new HashSet<Integer>();
+		buildingQueue = new ArrayList<Unit>();
+		armyQueue = new ArrayList<Unit>();
+		assignedUnits = new ArrayList<Unit>();
+		hasPriority = Priority.ARMY;
+		alreadyGaveScout = false;
+	}
 	
 	// Method called at the beginning of the game.
-	public void gameStarted() {		
+	public void gameStarted() {
+		reset();
 		System.out.println("Game Started");
 
 		// allow me to manually control units during the game
@@ -77,6 +89,8 @@ public class JavaBot implements BWAPIEventListener {
 		managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
 		managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
 		managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
+		for (Manager manager : managers.values())
+			manager.reset();
 	}
 	
 	
@@ -162,7 +176,7 @@ public class JavaBot implements BWAPIEventListener {
 				bwapi.printText("Assigning scout to ScoutManager");
 				if (!alreadyGaveScout) {
 					alreadyGaveScout = true;
-					requestScout();
+					requestScout(builderId);
 				}
 			}
 		}
@@ -222,9 +236,15 @@ public class JavaBot implements BWAPIEventListener {
         }
 	}
 	
-	public static void requestScout() {
+	public static void requestScout(int scout) {
 		bwapi.printText("Assigning scout to ScoutManager");
-		assignUnit(ResourceManager.getInstance().getScoutUnit(), ScoutManager.class.getSimpleName());
+
+		if (scout == -1)
+			assignUnit(ResourceManager.getInstance().getScoutUnit(), ScoutManager.class.getSimpleName());
+		else {
+			Unit unit = bwapi.getUnit(managers.get(ResourceManager.class.getSimpleName()).removeUnit(scout));
+			assignUnit(unit, ScoutManager.class.getSimpleName());
+		}
 	}
 	
 	public void unitDestroy(int unitID) {

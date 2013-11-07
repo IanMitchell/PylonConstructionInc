@@ -17,6 +17,10 @@ public class UnitManager implements Manager {
 		}
 		return instance;
 	}
+	
+	public void reset() {
+		//No static variables?
+	}
 
 	@Override
 	public void act() {

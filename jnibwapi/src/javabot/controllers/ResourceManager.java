@@ -28,6 +28,14 @@ public class ResourceManager implements Manager {
 		}
 		return instance;
 	}
+	public void reset() {
+		mineralWorkers = new ArrayList<Unit>();
+		gasWorkers = new ArrayList<Unit>();
+		mineralNodes = new ArrayList<Unit>();
+		gasNodes = new ArrayList<Unit>();
+		assimilatorRequested = false;
+		ResourceManager instance = null;
+	}
 
 	public void gameStart(ArrayList<Unit> units) {
 		int counter = 0;

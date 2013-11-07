@@ -16,6 +16,10 @@ public class ArmyManager implements Manager {
 		squads = new ArrayList<Squad>();
 		squads.add(new Squad());
 	}
+	public void reset() {
+		squads = new ArrayList<Squad>();
+		enemyMain = null;
+	}
 	
 	public static ArmyManager getInstance() {
 		if(instance == null) {

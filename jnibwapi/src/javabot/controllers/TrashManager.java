@@ -15,6 +15,10 @@ public class TrashManager implements Manager {
 		}
 		return instance;
 	}
+	
+	public void reset() {
+		// HA! THERES NO NEED FOR RESET HERE!
+	}
 
 	@Override
 	public void act() {

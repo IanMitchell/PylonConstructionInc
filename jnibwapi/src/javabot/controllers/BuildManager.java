@@ -25,6 +25,10 @@ public class BuildManager implements Manager {
 		return instance;
 	}
 	
+	public void reset() {
+		buildings = new HashMap<Integer, HashSet<Integer>>();
+	}
+	
 	@Override
 	public void act() {
 		// Build pylons if we are low on supply (if free supply is less than 3).

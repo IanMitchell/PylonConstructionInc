@@ -19,4 +19,6 @@ public interface Manager {
 	 * @return id of removed unit
 	 */
 	public int removeUnit(int unitId);
+	
+	public void reset();
 }

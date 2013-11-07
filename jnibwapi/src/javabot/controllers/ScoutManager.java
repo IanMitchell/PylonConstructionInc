@@ -24,6 +24,12 @@ public class ScoutManager implements Manager {
 		mainFound = false;
 	}
 	
+	public void reset() {
+		scoutSquads = new ArrayList<ScoutSquad>();
+		bases = JavaBot.bwapi.getMap().getBaseLocations();
+		mainFound = false;
+	}
+	
 	public static ScoutManager getInstance() {
 		if(instance == null) {
 			instance = new ScoutManager();
