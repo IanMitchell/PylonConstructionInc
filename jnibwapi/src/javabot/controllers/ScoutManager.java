@@ -39,7 +39,7 @@ public class ScoutManager implements Manager {
 	
 	public void act() {
 		if (status == 1) {
-			if (scoutSquads.size() == 0 || scoutSquads.get(0).getScout() == null) {
+			if (scoutSquads.size() == 0 || scoutSquads.get(0).scout == null) {
 				status = 0;
 			}
 		}
@@ -63,6 +63,10 @@ public class ScoutManager implements Manager {
 	
 	public int numScouts() {
 		return scoutSquads.size();
+	}
+	
+	public ScoutSquad getFirstSquad() {
+		return scoutSquads.get(0);
 	}
 
 	@Override

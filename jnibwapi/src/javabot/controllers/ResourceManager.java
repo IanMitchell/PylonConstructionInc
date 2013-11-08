@@ -2,7 +2,6 @@ package javabot.controllers;
 
 import java.util.ArrayList;
 
-import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
 import javabot.JavaBot;
 import javabot.models.Unit;
@@ -34,7 +33,7 @@ public class ResourceManager implements Manager {
 		mineralNodes = new ArrayList<Unit>();
 		gasNodes = new ArrayList<Unit>();
 		assimilatorRequested = false;
-		ResourceManager instance = null;
+		instance = null;
 	}
 
 	public void gameStart(ArrayList<Unit> units) {
@@ -190,7 +189,7 @@ public class ResourceManager implements Manager {
 		return -1;
 	}
 	
-	public Unit getScoutUnit() {
+	public Unit giveMineralUnit() {
 		return mineralWorkers.remove(0);
 	}
 }

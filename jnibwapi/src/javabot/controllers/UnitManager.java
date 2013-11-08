@@ -7,6 +7,8 @@ import javabot.types.UnitType.UnitTypes;
 public class UnitManager implements Manager {
 	private static UnitManager instance = null;
 	
+	private UnitTypes nextToBuild = null;
+	
 	private UnitManager() {
 		
 	}
@@ -24,6 +26,11 @@ public class UnitManager implements Manager {
 
 	@Override
 	public void act() {
+		if (nextToBuild != null) {
+			//BUILD THIS UNIT
+			nextToBuild = null;
+		}
+		
 		//train probes
 		for (Unit unit : JavaBot.bwapi.getMyUnits()) {
 			if (unit.getTypeID() == UnitTypes.Protoss_Nexus.ordinal()) {
@@ -62,5 +69,13 @@ public class UnitManager implements Manager {
 	public int removeUnit(int unitId) {
 		// TODO Auto-generated method stub
 		return -1;
+	}
+	
+	public void toBuild(UnitTypes unit) {
+		nextToBuild = unit;
+	}
+	//Returns whether or not there is a building that is available to make this unit right now.
+	public boolean canBuild(UnitTypes unit) {
+		return true;
 	}
 }

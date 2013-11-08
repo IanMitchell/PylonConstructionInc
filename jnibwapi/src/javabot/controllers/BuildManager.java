@@ -3,10 +3,10 @@ package javabot.controllers;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import javabot.JavaBot;
 import javabot.models.Unit;
+import javabot.types.TechType.TechTypes;
 import javabot.types.UnitType.UnitTypes;
 
 public class BuildManager implements Manager {
@@ -14,6 +14,10 @@ public class BuildManager implements Manager {
 	
 	//list of buildings. key represents ordinal of UnitTypes, value list of that unit
 	private HashMap<Integer, HashSet<Integer>> buildings = new HashMap<Integer, HashSet<Integer>>();
+	
+	private UnitTypes nextToBuild = null;
+	private TechTypes nextToTech = null;
+	public boolean workerMovingToBuild = false;
 	
 	private BuildManager() {
 	}
@@ -31,6 +35,17 @@ public class BuildManager implements Manager {
 	
 	@Override
 	public void act() {
+		if (nextToBuild != null) {
+			//BUILD THIS NOW
+			nextToBuild = null;
+			//SET THIS VARIABLE TO FALSE ONCE THAT BUILDING HAS BEEN BUILT
+			workerMovingToBuild = true;
+		}
+		if (nextToTech != null) {
+			//TECH THIS NOW
+			nextToTech = null;
+		}
+		
 		// Build pylons if we are low on supply (if free supply is less than 3).
 		if (((JavaBot.bwapi.getSelf().getSupplyTotal() - JavaBot.bwapi.getSelf().getSupplyUsed())/2) < 3) {
 			// Check if we have enough minerals,
@@ -178,6 +193,13 @@ public class BuildManager implements Manager {
 	public int removeUnit(int unitId) {
 		// TODO Auto-generated method stub
 		return -1;
+	}
+	
+	public void toBuild(UnitTypes building) {
+		nextToBuild = building;
+	}
+	public void toTech(TechTypes tech) {
+		nextToTech = tech;
 	}
 
 }

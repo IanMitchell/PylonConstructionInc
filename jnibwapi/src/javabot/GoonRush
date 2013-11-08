@@ -1,0 +1,30 @@
+8 Protoss_Pylon
+10 Gateway
+11 Assimilator
+13 Cybernetics Core
+15 Gateway 
+15 Dragoon Range
+15 Dragoon
+17 Pylon
+17 Dragoon
+17 Dragoon
+21 Pylon
+29 Probe
+[Units]
+Probe
+Dark Templar
+Dragoon
+Zealot
+[Build]
+Pylon
+Citadel of Adun
+Templar Archives
+Nexus
+----- NOTES -----
+Cut off Probes from supply 15-29
+Dragoon: 125m, 50g
+Range: 150m, 150g (At cybercore)
+Zealot: 100m
+DT: (City of Adun -> Templar Archives): 125m, 100g
+City: 150m, 100g
+Templar: 150m, 200g

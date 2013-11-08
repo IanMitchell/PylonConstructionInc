@@ -3,9 +3,7 @@ package javabot.controllers;
 import java.awt.Point;
 import java.util.*;
 
-import javabot.JavaBot;
 import javabot.models.*;
-import javabot.types.UnitType.UnitTypes;
 
 public class ArmyManager implements Manager {
 	private static ArmyManager instance = null;

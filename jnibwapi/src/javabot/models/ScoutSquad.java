@@ -123,10 +123,6 @@ public class ScoutSquad extends Squad {
 			}
 		}
 	}
-	
-	public Unit getScout() {
-		return scout;
-	}
 
 	public int getUnitId() {
 		return scout.getID();
