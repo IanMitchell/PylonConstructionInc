@@ -1,22 +1,30 @@
 package javabot.controllers;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javabot.JavaBot;
 import javabot.models.Unit;
+import javabot.models.UpgradeBuild;
+import javabot.types.TechType;
 import javabot.types.TechType.TechTypes;
+import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
+import javabot.types.UpgradeType;
+import javabot.types.UpgradeType.UpgradeTypes;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
 	
-	//list of buildings. key represents ordinal of UnitTypes, value list of that unit
-	private HashMap<Integer, HashSet<Integer>> buildings = new HashMap<Integer, HashSet<Integer>>();
-	
-	private UnitTypes nextToBuild = null;
-	private TechTypes nextToTech = null;
+	private ArrayList<Integer> buildingsBeingConstructed;
+	private ArrayList<Integer> buildings;
+	private LinkedList<UnitTypes> buildOrder;
+	private LinkedList<UnitTypes> unitOrder;
+	private LinkedList<UpgradeBuild> upgradeOrder;
 	public boolean workerMovingToBuild = false;
 	
 	private BuildManager() {
@@ -30,76 +38,163 @@ public class BuildManager implements Manager {
 	}
 	
 	public void reset() {
-		buildings = new HashMap<Integer, HashSet<Integer>>();
+		buildingsBeingConstructed = new ArrayList<Integer>(); //integer represents unitId
+		buildings = new ArrayList<Integer>();
+		buildOrder = new LinkedList<UnitTypes>();
+		upgradeOrder = new LinkedList<UpgradeBuild>();
+		unitOrder = new LinkedList<UnitTypes>();
 	}
 	
 	@Override
 	public void act() {
-		if (nextToBuild != null) {
-			//BUILD THIS NOW
-			nextToBuild = null;
-			//SET THIS VARIABLE TO FALSE ONCE THAT BUILDING HAS BEEN BUILT
-			workerMovingToBuild = true;
-		}
-		if (nextToTech != null) {
-			//TECH THIS NOW
-			nextToTech = null;
-		}
-		
-		// Build pylons if we are low on supply (if free supply is less than 3).
-		if (((JavaBot.bwapi.getSelf().getSupplyTotal() - JavaBot.bwapi.getSelf().getSupplyUsed())/2) < 3) {
-			// Check if we have enough minerals,
-			if (JavaBot.bwapi.getSelf().getMinerals() >= 100) {
-				// try to find the worker near our home position
-				int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-				if (worker != -1) {
-					// if we found him, try to select appropriate build tile position for supply depot (near our home base)
-					Point buildTile = getBuildTile(worker, UnitTypes.Protoss_Pylon.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-					// if we found a good build position, and we aren't already constructing a Supply Depot, 
-					// order our worker to build it
-					if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Pylon.ordinal()))) {
-						JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Pylon.ordinal());
-					}
+		for (Integer inConstruction : buildingsBeingConstructed) {
+			int type = JavaBot.bwapi.getUnit(inConstruction).getTypeID();
+			
+			if (JavaBot.bwapi.getUnit(inConstruction).isCompleted()) {
+				buildingsBeingConstructed.remove(inConstruction);
+				buildings.add(inConstruction);
+				
+				//notify javabot that building is complete
+				if (JavaBot.bwapi.getUnit(inConstruction).getTypeID() == UnitTypes.Protoss_Assimilator.ordinal()) {
+					JavaBot.buildingComplete(inConstruction);
 				}
 			}
 		}
-
 		
-		int unitSelected = 0; 
+		if (!buildOrder.isEmpty()) {
+			UnitTypes nextToBuild = buildOrder.element();
+			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+			if (worker != -1) {
+				// if we found him, try to select appropriate build tile position for building
+				Point buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+				
+				// if we found a good build position, and we aren't already constructing the same building - build 
+				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()))) {
+					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
+				}
+			}
+			if (weAreBuilding(nextToBuild.ordinal())) {
+				buildOrder.remove();
+				
+				//special event for Assimilator as UnitCreate (in JavaBot) is not called for assimilator
+				if (nextToBuild.ordinal() == UnitTypes.Protoss_Assimilator.ordinal()) {
+					for (Unit u : JavaBot.bwapi.getMyUnits())
+						if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal())
+							assignUnit(u);
+							
+				}
+					
+			}
+		}
 		
-		//build first gateway
-		if(getBuildingCount(UnitTypes.Protoss_Gateway.ordinal()) <= 2) {
-			if (JavaBot.bwapi.getSelf().getSupplyTotal() > 12) {
-				if(JavaBot.bwapi.getSelf().getMinerals() >= 150) {
-					int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-					if (worker != -1) {
-						// if we found him, try to select appropriate build tile position for supply depot (near our home base)
-						if(unitSelected == 0) {
-							unitSelected = 1;
-							Point buildTile = getBuildTile(worker, UnitTypes.Protoss_Gateway.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-							// if we found a good build position, and we aren't already constructing a Supply Depot, 
-							// order our worker to build it
-							if ((buildTile.x != -1) && (!weAreBuilding(UnitTypes.Protoss_Gateway.ordinal()))) {
-								JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, UnitTypes.Protoss_Gateway.ordinal());
-								//unitSelected = 0;
-							}
-						}
-					}
+		if (!upgradeOrder.isEmpty()) {
+			UpgradeBuild nextToUpgrade = upgradeOrder.element();
+			UpgradeType upgradeInformation = JavaBot.bwapi.getUpgradeType(nextToUpgrade.getUpgrade().ordinal());
+			
+			
+			for (Integer buildingId : buildings) {
+				Unit building = JavaBot.bwapi.getUnit(buildingId);
+				if (building.getTypeID() == nextToUpgrade.getBuilding().ordinal() && 
+				 JavaBot.bwapi.getSelf().getMinerals() >= upgradeInformation.getMineralPriceBase() &&
+				 JavaBot.bwapi.getSelf().getGas() >= upgradeInformation.getGasPriceBase()) {
+					JavaBot.bwapi.upgrade(buildingId, nextToUpgrade.getUpgrade().ordinal());
+				}
+				
+				if (building.isUpgrading())
+					upgradeOrder.remove();
+			}
+		}
+		
+		if (!unitOrder.isEmpty()) {
+			UnitTypes nextToTrain = unitOrder.element();
+			UnitType unitType = JavaBot.bwapi.getUnitType(nextToTrain.ordinal());
+			int building = unitType.getWhatBuildID();
+			
+			for (int i=0; i<buildings.size(); i++) {
+				if (JavaBot.bwapi.getUnit(buildings.get(i)).getTypeID() == building && canBuildUnit(buildings.get(i), unitType)) {
+					JavaBot.bwapi.train(buildings.get(i), nextToTrain.ordinal());
+					break;
 				}
 			}
 		}
 	}
 	
+	
+	public void toBuild(UnitTypes building) {
+		buildOrder.add(building);
+	}
+	
+	public void toUpgrade(UpgradeBuild upgrade) {
+		upgradeOrder.add(upgrade);
+	}
+	
+	public boolean canTrain(UnitTypes unit) {
+		UnitType unitType = JavaBot.bwapi.getUnitType(unit.ordinal());
+		int building = unitType.getWhatBuildID();
+		
+		for (int i=0; i<buildings.size(); i++) {
+			if (JavaBot.bwapi.getUnit(buildings.get(i)).getTypeID() == building && JavaBot.bwapi.getUnit(buildings.get(i)).getTrainingQueueSize() == 0) {
+				return canBuildUnit(buildings.get(i), unitType);
+			}
+		}
+		return false;
+	}
+	
+	private boolean canBuildUnit(int unitId, UnitType unitType) {
+		return (JavaBot.bwapi.getUnit(unitId).getTrainingQueueSize() == 0 &&
+				JavaBot.getSupplyAvailable() >= unitType.getSupplyRequired() && 
+				JavaBot.player.getMinerals() >= unitType.getMineralPrice() &&
+				JavaBot.player.getGas() >= unitType.getGasPrice());
+	}
+	
+	public void toTrain(UnitTypes unit) {
+		unitOrder.add(unit);
+	}
+	
+	
 	/**
-	 * Returns count of requested building
-	 * @param type key to search for 
+	 * name is a bit misleading. Returns total count of building (whether being constructed or built)
+	 * @param ordinal See UnitTypes.ordinal()
 	 * @return
 	 */
+	public int getBuildingCount(int ordinal) {
+		int count = 0;
+		for (Integer inConstruction : buildingsBeingConstructed)
+			if (JavaBot.bwapi.getUnit(inConstruction).getTypeID() == ordinal)
+				count++;
+		
+		for (Integer built : buildings)
+			if (JavaBot.bwapi.getUnit(built).getTypeID() == ordinal)
+				count++;
+		
+		return count;
+	}
 	
+	@Override
+	public void gameUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
 	
+	@Override
+	public void assignUnit(Unit unit) {
+		UnitType type = JavaBot.bwapi.getUnitType(unit.getTypeID());
+		if (type.isBuilding()) {
+			if (unit.isBeingConstructed()) {
+				buildingsBeingConstructed.add(unit.getID());
+			}
+			else {
+				buildings.add(unit.getID());
+			}
+		}
+		else if (type.isWorker() || type.isAttackCapable() || type.isSpellcaster())
+			unitOrder.remove();
+	}
 	
-	public int getBuildingCount(int type) {
-		return buildings.containsKey(type) ? buildings.get(type).size() : 0;
+	@Override
+	public int removeUnit(int unitId) {
+		// TODO Auto-generated method stub
+		return -1;
 	}
 	
 	// Returns true if we are currently constructing the building of a given type.
@@ -113,13 +208,15 @@ public class BuildManager implements Manager {
 		return false;
 	}
 	
-	// Returns the id of a unit of a given type, that is closest to a pixel position (x,y), or -1 if we
-    // don't have a unit of this type
+	// Returns the id of a unit of a given type, that is closest to a pixel position (x,y),
+	// ignores gasCarrying workers
+	// or -1 if we don't have a unit of this type
     public int getNearestUnit(int unitTypeID, int x, int y) {
     	int nearestID = -1;
 	    double nearestDist = 9999999;
 	    for (Unit unit : JavaBot.bwapi.getMyUnits()) {
 	    	if ((unit.getTypeID() != unitTypeID) || (!unit.isCompleted())) continue;
+	    	if (unit.isCarryingGas()) continue;
 	    	double dist = Math.sqrt(Math.pow(unit.getX() - x, 2) + Math.pow(unit.getY() - y, 2));
 	    	if (nearestID == -1 || dist < nearestDist) {
 	    		nearestID = unit.getID();
@@ -174,32 +271,6 @@ public class BuildManager implements Manager {
 		if (ret.x == -1)
 			JavaBot.bwapi.printText("Unable to find suitable build position for "+JavaBot.bwapi.getUnitType(buildingTypeID).getName());
 		return ret;
-	}
-
-	@Override
-	public void gameUpdate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void assignUnit(Unit unit) {
-		if (!buildings.containsKey(unit.getTypeID()))
-			buildings.put(unit.getTypeID(), new HashSet<Integer>());
-		buildings.get(unit.getTypeID()).add(unit.getID());
-	}
-
-	@Override
-	public int removeUnit(int unitId) {
-		// TODO Auto-generated method stub
-		return -1;
-	}
-	
-	public void toBuild(UnitTypes building) {
-		nextToBuild = building;
-	}
-	public void toTech(TechTypes tech) {
-		nextToTech = tech;
 	}
 
 }

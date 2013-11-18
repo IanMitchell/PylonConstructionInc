@@ -38,6 +38,7 @@ public class ScoutManager implements Manager {
 	}
 	
 	public void act() {
+		/*
 		if (status == 1) {
 			if (scoutSquads.size() == 0 || scoutSquads.get(0).scout == null) {
 				status = 0;
@@ -46,6 +47,7 @@ public class ScoutManager implements Manager {
 		if (status == 0) {
 			JavaBot.requestUnit(UnitTypes.Protoss_Probe.ordinal());
 		}
+		*/
 	}
 	
 

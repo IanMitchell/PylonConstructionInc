@@ -61,7 +61,7 @@ public class ResourceManager implements Manager {
 		if (u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && !mineralWorkers.contains(u)) {
 			mineralWorkers.add(u);
 		}
-		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && !gasWorkers.contains(u)) {
+		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && !gasNodes.contains(u)) {
 			gasNodes.add(u);
 			
 			if (mineralWorkers.size() > 3) {
@@ -90,6 +90,10 @@ public class ResourceManager implements Manager {
 	public int gasUnitCount() {
 		return gasWorkers.size();
 	}
+	
+	public int getProbeCount() {
+		return mineralWorkers.size() + gasWorkers.size();
+	}
 
 	@Override
 	public void act() {
@@ -107,7 +111,7 @@ public class ResourceManager implements Manager {
 				}
 				// and (if we found it) send this worker to gather it.
 				if (closestId != -1) {
-					JavaBot.bwapi.rightClick(unit.getID(), closestId);
+					JavaBot.bwapi.gather(unit.getID(), closestId);
 				}
 				else {
 					JavaBot.bwapi.printText("Idle Gas Worker with nothing to do.");
@@ -192,4 +196,9 @@ public class ResourceManager implements Manager {
 	public Unit giveMineralUnit() {
 		return mineralWorkers.remove(0);
 	}
+	
+	public ArrayList<Unit> getGasNodes() {
+		return gasNodes;
+	}
+	
 }

@@ -53,7 +53,6 @@ public class ScoutSquad extends Squad {
 				if ((inRange(squadCenter, new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400) && 
 				 scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal())) {
 					JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
-					scout = null;
 				}
 			}
 		}

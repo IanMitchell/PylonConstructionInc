@@ -12,12 +12,13 @@ import javabot.controllers.TrashManager;
 import javabot.controllers.UnitManager;
 import javabot.models.*;
 import javabot.types.*;
-import javabot.types.TechType.TechTypes;
 import javabot.types.UnitType.UnitTypes;
+import javabot.types.UpgradeType.UpgradeTypes;
 import javabot.util.BWColor;
 
 public class JavaBot implements BWAPIEventListener {
 	public static JNIBWAPI bwapi;
+	public static Player player;
 	public static int homePositionX;
 	public static int homePositionY;
 	
@@ -42,25 +43,6 @@ public class JavaBot implements BWAPIEventListener {
 	private static int stopProbeNum = 0;
 	private static int startProbeNum = 0;
 	
-	private class BuildTime {
-		private int supplyNum = 0;
-		private UnitTypes unit = null;
-		private TechTypes tech = null;
-		public BuildTime(int supply, UnitTypes u) {
-			supplyNum = supply;
-			unit = u;
-			tech = null;
-		}
-		public BuildTime(int supply, TechTypes t) {
-			supplyNum = supply;
-			unit = null;
-			tech = t;
-		}
-		public int getSupplyNum() {return supplyNum;}
-		public UnitTypes getUnit() {return unit;}
-		public TechTypes getTech() {return tech;}
-	}
-	
 	public static void main(String[] args) {
 		new JavaBot();
 	}
@@ -72,6 +54,7 @@ public class JavaBot implements BWAPIEventListener {
 		bwapi.loadTypeData();
 	}
 	private void reset() {
+		player = bwapi.getSelf();
 		possibleStrats = new ArrayList<String>();
 		possibleStrats.add("Goon Rush");
 		managers = new HashMap<String, Manager>();
@@ -130,11 +113,13 @@ public class JavaBot implements BWAPIEventListener {
 	public void act() {
 		for (Manager manager : managers.values())
 			manager.act();
+		
 		//Still in the static build order time of the game
-		if (initialPriorityList.size() > 0) {
+		if (!initialPriorityList.isEmpty()) {
 			//In the supply time of 'okay' to build probes
 			BuildTime bt = initialPriorityList.peek();
 			int[] resourceCost = new int[] {0, 0};
+			
 			if (bt.getUnit() != null) {
 				UnitType type = bwapi.getUnitType(bt.getUnit().ordinal());
 				if (type == null) {
@@ -144,61 +129,66 @@ public class JavaBot implements BWAPIEventListener {
 				resourceCost[1] = type.getGasPrice();
 			}
 			else {
-				TechType type = bwapi.getTechType(bt.getTech().ordinal());
+				UpgradeType type = bwapi.getUpgradeType(bt.getUpgrade().getUpgrade().ordinal());
 				if (type == null) {
 					return;
 					//bwapi.printText("Found unknown tech to research"); NEED TO FIGURE OUT HOW TO RESEARCH DRAGOON RANGE!!!!
 				}
-				resourceCost[0] = type.getMineralPrice();
-				resourceCost[1] = type.getGasPrice();	
+				resourceCost[0] = type.getMineralPriceBase();
+				resourceCost[1] = type.getGasPriceBase();	
 			}
+			
 			//Check if it's time to build this unit yet
-			if (bwapi.getSelf().getSupplyTotal() / 2 >= bt.getSupplyNum()) {
-				if (bwapi.getSelf().getMinerals() >= resourceCost[0] && bwapi.getSelf().getMinerals() >= resourceCost[1]) {
+			if (getSupplyCount() >= bt.getSupplyNum()) {
+				if (player.getMinerals() >= resourceCost[0] && player.getMinerals() >= resourceCost[1]) {
 					if (bt.getUnit() != null) {
 						if (bwapi.getUnitType(bt.getUnit().ordinal()).isBuilding()) {
 							BuildManager.getInstance().toBuild(bt.getUnit());
 						}
 						else {
-							UnitManager.getInstance().toBuild(bt.getUnit());
+							BuildManager.getInstance().toTrain(bt.getUnit());
 						}
 					}
 					else {
-						BuildManager.getInstance().toTech(bt.getTech());
+						BuildManager.getInstance().toUpgrade(bt.getUpgrade());
 					}
 					initialPriorityList.pop();
 				}
 			}
-			//Not in the 'dead' zone of strat of not building probes, and not waiting for minerals for next unit build 
-			else if ((!(bwapi.getSelf().getSupplyTotal() / 2 >= stopProbeNum && bwapi.getSelf().getSupplyTotal() / 2 <= startProbeNum)) && bwapi.getSelf().getSupplyTotal() / 2 != bt.getSupplyNum()) {
-				if (bwapi.getSelf().getMinerals() >= bwapi.getUnitType(UnitTypes.Protoss_Probe.ordinal()).getMineralPrice()) {
-					UnitManager.getInstance().toBuild(UnitTypes.Protoss_Probe);
+			//Not in the 'dead' zone of strat of not building probes, and not waiting for minerals for next unit build
+			//TODO i recommend that probes be placed into strategy and not be independently checked
+			if (ResourceManager.getInstance().getProbeCount() <= stopProbeNum && BuildManager.getInstance().canTrain(UnitTypes.Protoss_Probe)) {
+				BuildManager.getInstance().toTrain(UnitTypes.Protoss_Probe);
+			}
+			/*
+			if ((!(player.getSupplyTotal() / 2 >= stopProbeNum && player.getSupplyTotal() / 2 <= startProbeNum)) && player.getSupplyTotal() / 2 != bt.getSupplyNum()) {
+				if (player.getMinerals() >= bwapi.getUnitType(UnitTypes.Protoss_Probe.ordinal()).getMineralPrice()) {
+					BuildManager.getInstance().toTrain(UnitTypes.Protoss_Probe);
 				}
 			}
+			*/
 		}
 		//No longer in static build order. Based off of unitPriorityList and buildingPriorityList, call for stuff to be built
 		else {
 			//Build a pylon when we need it
-			if ((bwapi.getSelf().getSupplyTotal() - bwapi.getSelf().getSupplyUsed()) / 2 < 4) {
+			if (getSupplyAvailable() < 4) {
 				BuildManager.getInstance().toBuild(UnitTypes.Protoss_Pylon);
-				return;
 			}
 			UnitType type = bwapi.getUnitType(buildingPriorityList.peek().ordinal());
-			if (bwapi.getSelf().getMinerals() >= type.getMineralPrice() && bwapi.getSelf().getGas() >= type.getGasPrice()) {
+			if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
 				BuildManager.getInstance().toBuild(buildingPriorityList.pop());
-				return;
 			}
 			//Unreliable count of minerals - worker currently moving to build something but hasn't got there yet
+			/*
 			else if (BuildManager.getInstance().workerMovingToBuild) {
-				return;
-			}
+			}*/
 			//Don't have the minerals to try to build something. Lets check if we can build a unit we need instead
 			for (int i = 0; i < unitPriorityList.size(); i++) {
 				type = bwapi.getUnitType(unitPriorityList.get(i).ordinal());
-				if (bwapi.getSelf().getMinerals() >= type.getMineralPrice() && bwapi.getSelf().getGas() >= type.getGasPrice()) {
+				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
-					if (UnitManager.getInstance().canBuild(unitPriorityList.get(i))) {
-						UnitManager.getInstance().toBuild(unitPriorityList.get(i));
+					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
+						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
 					}
 				}
 			}	
@@ -216,7 +206,8 @@ public class JavaBot implements BWAPIEventListener {
 			if (cc == -1) cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
 			homePositionX = bwapi.getUnit(cc).getX();
 			homePositionY = bwapi.getUnit(cc).getY();
-		
+			BuildManager.getInstance().assignUnit(bwapi.getUnit(cc));
+			
 			ResourceManager.getInstance().gameStart(bwapi.getMyUnits());
 		}
 		
@@ -240,7 +231,22 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	
 	/**
-	 * Event fired when unit has been created or when building has started construction 
+	 * Event fired (from BuildManager) to notify Javabot that a building has been completed 
+	 * @param unitID building
+	 */
+	public static void buildingComplete(int unitId) {
+		Unit unit = bwapi.getUnit(unitId);
+		int type = unit.getTypeID();
+		
+		if (type == UnitTypes.Protoss_Assimilator.ordinal()) {
+			ResourceManager.getInstance().assignUnit(unit);
+		}
+			
+	}
+	
+	
+	/**
+	 * Event fired when unit/building has started construction 
 	 * Assigns probes to ResourceManager
 	 * Assigns combat units to ArmyManager
 	 * Assigns buildings to BuildingManager
@@ -249,32 +255,43 @@ public class JavaBot implements BWAPIEventListener {
 	public void unitCreate(int unitID) {
 		Unit u = bwapi.getUnit(unitID);
 		UnitType type = bwapi.getUnitType(u.getTypeID());
-		bwapi.printText(type.getName() + " has been created.");
+		//bwapi.printText(type.getName() + " has been started construction.");
 		
 		if (type.isWorker()) {
-			bwapi.printText("Assigning worker to ResourceManager");
+			//bwapi.printText("Assigning worker to ResourceManager");
 			assignUnit(bwapi.getUnit(unitID), ResourceManager.class.getSimpleName());
+			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isAttackCapable() || type.isSpellcaster()) {
-			bwapi.printText("Assigning attacking unit to ArmyManager");
+			//bwapi.printText("Assigning attacking unit to ArmyManager");
 			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
+			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isBuilding()) {
 			int builderId = bwapi.getUnit(BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), u.getX(), u.getY())).getID();
 			
-			bwapi.printText("Assigning building to BuildingManager");
+			//bwapi.printText("Assigning building to BuildingManager");
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 			
-			//reassigns worker from resource mgr -> scout mgr if first pylon built
+			//reassigns worker from resource mgr -> scout mgr on start of first pylon construction
 			if (u.getTypeID() == UnitTypes.Protoss_Pylon.ordinal() && BuildManager.getInstance().getBuildingCount(UnitTypes.Protoss_Pylon.ordinal()) == 1) {
 				bwapi.printText("Assigning scout to ScoutManager");
 				if (!alreadyGaveScout) {
 					alreadyGaveScout = true;
-					bwapi.printText("Assigning scout to ScoutManager");
+					//bwapi.printText("Assigning scout to ScoutManager");
 					assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
 				}
 			}
 		}
+	}
+	
+	
+	public static int getSupplyCount() {
+		return player.getSupplyUsed()/2;
+	}
+	
+	public static int getSupplyAvailable() {
+		return player.getSupplyTotal()/2 - player.getSupplyUsed()/2;
 	}
 	
 	/**
@@ -361,9 +378,9 @@ public class JavaBot implements BWAPIEventListener {
 		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Assimilator));
 		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
 		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(15, TechTypes.Undefined33)); //This 'should' be Singularity Charge, have to test in game to make sure does this correctly. Sent emails to the owners of the JNIBWAPI
+		initialPriorityList.add(new BuildTime(15, new UpgradeBuild(UpgradeTypes.Singularity_Charge, UnitTypes.Protoss_Cybernetics_Core)));
 		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Pylon));
+		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
@@ -371,10 +388,10 @@ public class JavaBot implements BWAPIEventListener {
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Dragoon));
 		
-		unitPriorityList.add(UnitTypes.Protoss_Probe);
 		unitPriorityList.add(UnitTypes.Protoss_Dark_Templar);
 		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
 		unitPriorityList.add(UnitTypes.Protoss_Zealot);
+		unitPriorityList.add(UnitTypes.Protoss_Probe);
 		
 		buildingPriorityList.add(UnitTypes.Protoss_Citadel_of_Adun);
 		buildingPriorityList.add(UnitTypes.Protoss_Templar_Archives);
@@ -383,4 +400,6 @@ public class JavaBot implements BWAPIEventListener {
 		stopProbeNum = 15;
 		startProbeNum = 29;
 	}
+	
+	
 }

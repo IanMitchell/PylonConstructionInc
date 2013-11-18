@@ -31,6 +31,7 @@ public class UnitManager implements Manager {
 			nextToBuild = null;
 		}
 		
+		/*
 		//train probes
 		for (Unit unit : JavaBot.bwapi.getMyUnits()) {
 			if (unit.getTypeID() == UnitTypes.Protoss_Nexus.ordinal()) {
@@ -51,6 +52,7 @@ public class UnitManager implements Manager {
 				}
 			}
 		}
+		*/
 	}
 
 	@Override
@@ -69,13 +71,5 @@ public class UnitManager implements Manager {
 	public int removeUnit(int unitId) {
 		// TODO Auto-generated method stub
 		return -1;
-	}
-	
-	public void toBuild(UnitTypes unit) {
-		nextToBuild = unit;
-	}
-	//Returns whether or not there is a building that is available to make this unit right now.
-	public boolean canBuild(UnitTypes unit) {
-		return true;
 	}
 }
