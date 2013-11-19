@@ -184,7 +184,12 @@ public class BuildManager implements Manager {
 				buildingsBeingConstructed.add(unit.getID());
 			}
 			else {
-				buildings.add(unit.getID());
+				if(buildings == null) {
+					JavaBot.bwapi.printText("Buildings is null");
+				}
+				else {
+					buildings.add(unit.getID());
+				}
 			}
 		}
 		else if (type.isWorker() || type.isAttackCapable() || type.isSpellcaster())

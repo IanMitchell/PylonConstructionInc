@@ -71,15 +71,21 @@ public class JavaBot implements BWAPIEventListener {
 		
 		//Choose Strategy for the game
 		Random rand = new Random();
-		currentStrat = possibleStrats.get(rand.nextInt() % possibleStrats.size());
-		if (currentStrat == "Goon Rush") {
+		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
+		if (currentStrat.equals("Goon Rush")) {
+			JavaBot.bwapi.printText("GOON RUSH <:]");
 			strategyGoonRush();
 		}
-		else if (currentStrat == "DT Rush") {
+		else if (currentStrat.equals("DT Rush")) {
+			JavaBot.bwapi.printText("DT RUSH 8====D");
 			strategyDTRush();
 		}
-		else if (currentStrat == "Carrier Rush") {
+		else if (currentStrat.equals("Carrier Rush")) {
+			JavaBot.bwapi.printText("~~ CARRIERERS ~~");
 			strategyCarrierRush();
+		}
+		else {
+			JavaBot.bwapi.printText("I broke");
 		}
 	}
 	
@@ -217,7 +223,6 @@ public class JavaBot implements BWAPIEventListener {
 			homePositionX = bwapi.getUnit(cc).getX();
 			homePositionY = bwapi.getUnit(cc).getY();
 			BuildManager.getInstance().assignUnit(bwapi.getUnit(cc));
-			
 			ResourceManager.getInstance().gameStart(bwapi.getMyUnits());
 		}
 		
@@ -343,7 +348,6 @@ public class JavaBot implements BWAPIEventListener {
 				bwapi.drawCircle(u.getX(), u.getY(), 12, BWColor.WHITE, false, false);
 				
 		}
-		
 	}
 	
 	public static void requestUnit(int unit) {

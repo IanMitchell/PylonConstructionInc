@@ -48,10 +48,11 @@ public class ResourceManager implements Manager {
 			if (neu.getTypeID() == UnitTypes.Resource_Mineral_Field.ordinal()) {
 				mineralNodes.add(neu);
 			
-				if (counter < units.size()) {
-					JavaBot.bwapi.rightClick(mineralWorkers.get(counter).getID(), neu.getID());
+				//Act will cause the workers to gather so this is not cool
+				/*if (counter < units.size()) {
+					JavaBot.bwapi.gather(mineralWorkers.get(counter).getID(), neu.getID());
 					counter++;
-				}
+				}*/
 			}
 		}
 	}
