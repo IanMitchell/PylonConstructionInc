@@ -47,7 +47,9 @@ public class Squad {
 				latestOrder = rallyPoint;
 			}
 			else {
-				newStatus = RETREATING;
+				if(status != IDLE) {
+					newStatus = RETREATING;
+				}
 				latestOrder = homeChokePoint;
 			}
 			if(status != newStatus && !lastOrderPoint.equals(latestOrder)) {
@@ -60,6 +62,9 @@ public class Squad {
 				}
 				else if(status == DEFENDING) {
 					JavaBot.bwapi.printText("New order: Defending (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
+				}
+				else if(status == RETREATING) {
+					JavaBot.bwapi.printText("New order: Retreating (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
 				}
 			}
 		}
@@ -84,6 +89,9 @@ public class Squad {
 				JavaBot.bwapi.attack(unit.getID(), p.x, p.y);
 			}
 			else if(status == DEFENDING) {
+				JavaBot.bwapi.move(unit.getID(), p.x, p.y);
+			}
+			else if(status == RETREATING) {
 				JavaBot.bwapi.move(unit.getID(), p.x, p.y);
 			}
 		}

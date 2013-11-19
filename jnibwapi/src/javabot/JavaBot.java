@@ -182,9 +182,11 @@ public class JavaBot implements BWAPIEventListener {
 			if (getSupplyAvailable() < 4) {
 				BuildManager.getInstance().toBuild(UnitTypes.Protoss_Pylon);
 			}
-			UnitType type = bwapi.getUnitType(buildingPriorityList.peek().ordinal());
-			if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
-				BuildManager.getInstance().toBuild(buildingPriorityList.pop());
+			if(buildingPriorityList.peek() != null) {
+				UnitType type = bwapi.getUnitType(buildingPriorityList.peek().ordinal());
+				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
+					BuildManager.getInstance().toBuild(buildingPriorityList.pop());
+				}
 			}
 			//Unreliable count of minerals - worker currently moving to build something but hasn't got there yet
 			/*
@@ -192,7 +194,7 @@ public class JavaBot implements BWAPIEventListener {
 			}*/
 			//Don't have the minerals to try to build something. Lets check if we can build a unit we need instead
 			for (int i = 0; i < unitPriorityList.size(); i++) {
-				type = bwapi.getUnitType(unitPriorityList.get(i).ordinal());
+				UnitType type = bwapi.getUnitType(unitPriorityList.get(i).ordinal());
 				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
 					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
