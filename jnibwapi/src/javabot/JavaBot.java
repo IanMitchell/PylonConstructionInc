@@ -73,20 +73,21 @@ public class JavaBot implements BWAPIEventListener {
 		Random rand = new Random();
 		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
 		if (currentStrat.equals("Goon Rush")) {
-			JavaBot.bwapi.printText("GOON RUSH <:]");
+			JavaBot.bwapi.printText(" ==== Running Strategy: Goon Rush ==== ");
 			strategyGoonRush();
 		}
 		else if (currentStrat.equals("DT Rush")) {
-			JavaBot.bwapi.printText("DT RUSH 8====D");
+			JavaBot.bwapi.printText(" ==== Running Strategy: DT Rush ==== ");
 			strategyDTRush();
 		}
 		else if (currentStrat.equals("Carrier Rush")) {
-			JavaBot.bwapi.printText("~~ CARRIERERS ~~");
+			JavaBot.bwapi.printText(" ==== Running Strategy: Carrier Rush ==== ");
 			strategyCarrierRush();
 		}
 		else {
 			JavaBot.bwapi.printText("I broke");
 		}
+		
 	}
 	
 	// Method called at the beginning of the game.
@@ -371,6 +372,16 @@ public class JavaBot implements BWAPIEventListener {
 			manager.removeUnit(unitID);
 	}
 	
+	/**
+	 * Called when unit changes type.
+	 * For examplem, vespene geyser changes to Protoss Assimilator
+	 */
+	public void unitMorph(int unitID) {
+		Unit unit = bwapi.getUnit(unitID);
+		if (unit.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && unit.isBeingConstructed())
+			BuildManager.getInstance().assignUnit(unit);
+	}
+	
 	// Some additional event-related methods.
 	public void gameEnded() {}
 	public void matchEnded(boolean winner) {}
@@ -381,7 +392,6 @@ public class JavaBot implements BWAPIEventListener {
 	public void unitDiscover(int unitID) {}
 	public void unitEvade(int unitID) {}
 	public void unitHide(int unitID) {}
-	public void unitMorph(int unitID) {}
 	public void unitShow(int unitID) {}
 	public void keyPressed(int keyCode) {}
 	

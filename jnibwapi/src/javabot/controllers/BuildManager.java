@@ -48,8 +48,6 @@ public class BuildManager implements Manager {
 	@Override
 	public void act() {
 		for (Integer inConstruction : buildingsBeingConstructed) {
-			int type = JavaBot.bwapi.getUnit(inConstruction).getTypeID();
-			
 			if (JavaBot.bwapi.getUnit(inConstruction).isCompleted()) {
 				buildingsBeingConstructed.remove(inConstruction);
 				buildings.add(inConstruction);
@@ -61,29 +59,26 @@ public class BuildManager implements Manager {
 			}
 		}
 		
-		if (!buildOrder.isEmpty()) {
+		if (!buildOrder.isEmpty() && !workerMovingToBuild) {
 			UnitTypes nextToBuild = buildOrder.element();
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 			if (worker != -1) {
 				// if we found him, try to select appropriate build tile position for building
 				Point buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 				
-				// if we found a good build position, and we aren't already constructing the same building - build 
-				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()))) {
+				//build structure if we found a good spot + aren't already building it + can afford it
+				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()) 
+				 && canAfford(JavaBot.bwapi.getUnitType(nextToBuild.ordinal())) && !workerMovingToBuild)) {
+					workerMovingToBuild = true;
 					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
+					JavaBot.bwapi.printText("ABOUT TO BUILD: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
 				}
-			}
-			if (weAreBuilding(nextToBuild.ordinal())) {
-				buildOrder.remove();
 				
-				//special event for Assimilator as UnitCreate (in JavaBot) is not called for assimilator
-				if (nextToBuild.ordinal() == UnitTypes.Protoss_Assimilator.ordinal()) {
-					for (Unit u : JavaBot.bwapi.getMyUnits())
-						if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal())
-							assignUnit(u);
-							
+				//method not called for assimilator. See unitMorph for Javabot
+				if (weAreBuilding(nextToBuild.ordinal())) {
+					buildOrder.remove();
+					workerMovingToBuild = false;
 				}
-					
 			}
 		}
 		
@@ -142,9 +137,13 @@ public class BuildManager implements Manager {
 	
 	private boolean canBuildUnit(int unitId, UnitType unitType) {
 		return (JavaBot.bwapi.getUnit(unitId).getTrainingQueueSize() == 0 &&
-				JavaBot.getSupplyAvailable() >= unitType.getSupplyRequired() && 
-				JavaBot.player.getMinerals() >= unitType.getMineralPrice() &&
-				JavaBot.player.getGas() >= unitType.getGasPrice());
+				JavaBot.getSupplyAvailable() >= unitType.getSupplyRequired() &&
+				canAfford(unitType));
+	}
+	
+	private boolean canAfford(UnitType unitType) {
+		return JavaBot.player.getMinerals() >= unitType.getMineralPrice() && 
+				JavaBot.player.getGas() >= unitType.getGasPrice();
 	}
 	
 	public void toTrain(UnitTypes unit) {
@@ -181,6 +180,7 @@ public class BuildManager implements Manager {
 		UnitType type = JavaBot.bwapi.getUnitType(unit.getTypeID());
 		if (type.isBuilding()) {
 			if (unit.isBeingConstructed()) {
+				workerMovingToBuild = false;
 				buildingsBeingConstructed.add(unit.getID());
 			}
 			else {
