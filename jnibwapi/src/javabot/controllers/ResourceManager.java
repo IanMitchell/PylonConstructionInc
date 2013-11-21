@@ -13,10 +13,13 @@ public class ResourceManager implements Manager {
 	private static ArrayList<Unit> mineralNodes = new ArrayList<Unit>();
 	private static ArrayList<Unit> gasNodes = new ArrayList<Unit>();
 
+	private static int unitsNeeded = 0;
+	
 	private static Boolean assimilatorRequested = false;
 
 	private static ResourceManager instance = null;
 
+	
 	private ResourceManager() {
 
 	}
@@ -27,6 +30,7 @@ public class ResourceManager implements Manager {
 		}
 		return instance;
 	}
+	
 	public void reset() {
 		mineralWorkers = new ArrayList<Unit>();
 		gasWorkers = new ArrayList<Unit>();
@@ -39,22 +43,61 @@ public class ResourceManager implements Manager {
 	public void gameStart(ArrayList<Unit> units) {
 		int counter = 0;
 		
-		//prevent base from being added
-		for (Unit unit : units)
-			if (unit.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+		for (Unit unit : units) {
+			if (unit.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
 				mineralWorkers.add(unit);
-
+			}
+		}
+		
+		// We don't want all units to go to the same node,
+		// so each starting probe gets sent to a new spot.
+		// The probes only seek open nodes when returning from the base,
+		// so the initial units all wait until the node is free initially,
+		// delaying our start significantly.
 		for (Unit neu : JavaBot.bwapi.getNeutralUnits()) {
 			if (neu.getTypeID() == UnitTypes.Resource_Mineral_Field.ordinal()) {
 				mineralNodes.add(neu);
+				unitsNeeded += 2;
 			
-				//Act will cause the workers to gather so this is not cool
-				/*if (counter < units.size()) {
+				if (counter < units.size()) {
 					JavaBot.bwapi.gather(mineralWorkers.get(counter).getID(), neu.getID());
 					counter++;
-				}*/
+				}
 			}
 		}
+	}
+
+	public void newBase(Unit base) {
+		double maxDistance = 400;
+
+		for (Unit n : JavaBot.bwapi.getNeutralUnits()) {
+			if (n.getTypeID() == UnitTypes.Resource_Mineral_Field.ordinal()) {
+				double distance = Math.sqrt(Math.pow(n.getX() - base.getX(), 2) + Math.pow(n.getY() - base.getY(), 2));
+				if (distance <= maxDistance) {
+					mineralNodes.add(n);
+					unitsNeeded += 2;
+				}
+			}
+		}
+	}
+	
+	private int getClosestMineralWorker(Unit unit) {
+		int closestId = -1;
+		double closestDist = 99999999;
+
+		for (Unit n : mineralWorkers) {
+			double distance = Math.sqrt(Math.pow(n.getX() - unit.getX(), 2) + Math.pow(n.getY() - unit.getY(), 2));
+			if ((closestId == -1) || (distance < closestDist)) {
+				closestDist = distance;
+				closestId = n.getID();
+			}
+		}
+		
+		if (closestId != -1) {
+			return closestId;
+		}
+		
+		return 0;
 	}
 
 	@Override
@@ -65,22 +108,21 @@ public class ResourceManager implements Manager {
 		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && !gasNodes.contains(u)) {
 			gasNodes.add(u);
 			
-			if (mineralWorkers.size() > 3) {
-				JavaBot.bwapi.rightClick(mineralWorkers.get(0).getID(), u.getID());
-				JavaBot.bwapi.rightClick(mineralWorkers.get(1).getID(), u.getID());
-				JavaBot.bwapi.rightClick(mineralWorkers.get(2).getID(), u.getID());
-
-				gasWorkers.add(mineralWorkers.get(0));
-				gasWorkers.add(mineralWorkers.get(1));
-				gasWorkers.add(mineralWorkers.get(2));
-				mineralWorkers.remove(0);
-				mineralWorkers.remove(1);
-				mineralWorkers.remove(2);
+			
+			for (int i = 0; i < 3; i++) {
+				if (mineralWorkers.size() > 0) {
+					int id = getClosestMineralWorker(u);
+					
+					JavaBot.bwapi.rightClick(mineralWorkers.get(id).getID(), u.getID());
+					gasWorkers.add(mineralWorkers.get(id));
+					mineralWorkers.remove(id);
+				}
 			}
+			
+			unitsNeeded += 3;
 		}
 		else {
 			JavaBot.bwapi.printText("Resource Manager assigned non-probe unit.");
-			//JavaBot.assignUnit(u);
 		}
 	}
 
@@ -140,15 +182,8 @@ public class ResourceManager implements Manager {
 				}
 				else {
 					JavaBot.bwapi.printText("Idle Mineral Worker with nothing to do.");
-					mineralWorkers.remove(unit);
-					//JavaBot.assignUnit(unit);
 				}
 			}
-		}
-
-		if (assimilatorRequested == false && mineralWorkers.size() >= 16) {
-			JavaBot.requestUnit(UnitTypes.Protoss_Assimilator.ordinal());
-			assimilatorRequested = true;
 		}
 	}
 
@@ -156,25 +191,6 @@ public class ResourceManager implements Manager {
 	public void gameUpdate() {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	/*
-	public static Unit requestWorker() {
-		//release a worker
-		for(Unit worker : mineralWorkers) {
-			if(worker.getTypeID() == UnitTypes.Protoss_Probe.ordinal()) {
-				if(worker.isCompleted() && worker.getHitPoints() > 0 && worker.isExists()) {
-					mineralWorkers.remove(worker);
-					return worker;
-				}
-			}
-		}
-		return null;
-	}
-	*/
-	
-	public int numWorkers() {
-		return mineralWorkers.size() + gasWorkers.size();
 	}
 
 	@Override
@@ -200,6 +216,10 @@ public class ResourceManager implements Manager {
 	
 	public ArrayList<Unit> getGasNodes() {
 		return gasNodes;
+	}
+	
+	public Boolean needsProbes() {
+		return unitsNeeded < gasWorkers.size() + mineralWorkers.size();
 	}
 	
 }
