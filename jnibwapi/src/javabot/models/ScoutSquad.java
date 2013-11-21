@@ -34,16 +34,18 @@ public class ScoutSquad extends Squad {
 			updateSquadPos();
 			setEnemies(SCOUT_RADIUS);
 			status = analyzeArea();
-			if (!ScoutManager.mainFound)
+			if(status ==  ATTACKING) {
+				harass(weakestWorker.getID());
+			}
+			if (!ScoutManager.mainFound && status != ATTACKING){
 				status = SCOUTING;
+			}
 			
 			//idleCount is used because right before it scouts, it goes into idle. 
 			if ((status == IDLE || scout.isIdle()) && ++idleCount > 1) {
 				JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
 			}
-			if(status ==  ATTACKING) {
-				harass(weakestWorker.getID());
-			}
+			
 			if (status == DANGER) {
 				JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
 				status = RETREATING;
@@ -68,7 +70,7 @@ public class ScoutSquad extends Squad {
 		
 		for(Unit enemy : enemies) {
 			UnitType type = JavaBot.bwapi.getUnitType(enemy.getTypeID());
-			if(type.isBuilding()) {
+			if(type.isBuilding() && ScoutManager.mainFound == false) {
 				if(type.getID() == UnitTypes.Terran_Command_Center.ordinal() || 
 				 type.getID() == UnitTypes.Protoss_Nexus.ordinal() ||
 				 type.getID() == UnitTypes.Zerg_Lair.ordinal() ||
@@ -77,9 +79,12 @@ public class ScoutSquad extends Squad {
 					ScoutManager.mainFound = true; 
 				}
 			}
-			else if(type.isWorker()) {
+			
+			if(type.isWorker()) {
 				if (isStronger(enemy) || scout.getHitPoints() < 10)
+				{
 					return DANGER;
+				}
 				else if (enemy.isConstructing()) {
 					weakestWorker = enemy;
 					return ATTACKING;
