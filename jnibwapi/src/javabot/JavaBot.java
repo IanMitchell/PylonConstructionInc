@@ -240,10 +240,15 @@ public class JavaBot implements BWAPIEventListener {
 		// Draw debug information on screen
 		drawDebugInfo();
 		
+		if (bwapi.getFrameCount() % 3500 == 0) {
+			scoutAssignUnit(ResourceManager.getInstance().giveMineralUnit(), ScoutManager.class.getSimpleName());
+		}
+		
 		// Call the act() method every 30 frames
 		if (bwapi.getFrameCount() % 30 == 0) {
 			act();
 		}
+		
 	}
 	
 	/**
@@ -320,8 +325,15 @@ public class JavaBot implements BWAPIEventListener {
 		managers.get(manager).assignUnit(unit);
 	}
 	
+	private static void scoutAssignUnit(Unit myUnit, String toManager) {
+		JavaBot.bwapi.printText("Removed mineral worker for scout");
+
+		if (myUnit.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
+			managers.get(toManager).assignUnit(myUnit);
+	}
+	
 	/**
-	 * Reassings unit
+	 * Reassings uni
 	 * @param unitId
 	 * @param fromManager
 	 */

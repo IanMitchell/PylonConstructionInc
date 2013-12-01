@@ -210,6 +210,7 @@ public class ResourceManager implements Manager {
 		return -1;
 	}
 	
+	
 	public Unit giveMineralUnit() {
 		return mineralWorkers.remove(0);
 	}

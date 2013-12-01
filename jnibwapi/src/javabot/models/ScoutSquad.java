@@ -115,12 +115,15 @@ public class ScoutSquad extends Squad {
 	}
 	
 	public void scout() {
+		JavaBot.bwapi.printText("I get here");
 		if(status == SCOUTING || !scout.isMoving()) {
+			JavaBot.bwapi.printText("here too");
 			for(BaseLocation base : ScoutManager.bases) {
 				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;
-				else if(!ScoutManager.mainFound) {
+				else {
 					if(base.isStartLocation()) {
+						JavaBot.bwapi.printText("MAGIC?");
 						JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
 					}
 				}
