@@ -172,7 +172,7 @@ public class JavaBot implements BWAPIEventListener {
 			}
 			//Not in the 'dead' zone of strat of not building probes, and not waiting for minerals for next unit build
 			//TODO i recommend that probes be placed into strategy and not be independently checked
-			if (ResourceManager.getInstance().getProbeCount() <= stopProbeNum && BuildManager.getInstance().canTrain(UnitTypes.Protoss_Probe)) {
+			if ((ResourceManager.getInstance().getProbeCount() <= stopProbeNum || ResourceManager.getInstance().getProbeCount() >= startProbeNum) && BuildManager.getInstance().canTrain(UnitTypes.Protoss_Probe)) {
 				BuildManager.getInstance().toTrain(UnitTypes.Protoss_Probe);
 			}
 			/*
