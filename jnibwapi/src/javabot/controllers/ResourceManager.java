@@ -123,7 +123,6 @@ public class ResourceManager implements Manager {
 					} catch (Throwable t) {
 						System.out.println(t.getMessage());
 					}
-
 				}
 			}
 			

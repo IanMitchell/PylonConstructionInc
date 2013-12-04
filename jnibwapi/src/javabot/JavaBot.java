@@ -28,7 +28,7 @@ public class JavaBot implements BWAPIEventListener {
 	private static Set<Integer> armyRequests = new HashSet<Integer>();
 	private static Set<Integer> workerRequests = new HashSet<Integer>();
 	
-	private static Deque<BuildTime> initialPriorityList = new ArrayDeque<BuildTime>();
+	public static Deque<BuildTime> initialPriorityList = new ArrayDeque<BuildTime>();
 	public static List<UnitTypes> unitPriorityList = new LinkedList<UnitTypes>();
 	public static Deque<UnitTypes> buildingPriorityList = new ArrayDeque<UnitTypes>();
 	
@@ -42,9 +42,7 @@ public class JavaBot implements BWAPIEventListener {
 	
 	private static int stopProbeNum = 0;
 	private static int startProbeNum = 0;
-	
-	private static int count = 0;
-	
+		
 	public static void main(String[] args) {
 		new JavaBot();
 	}
@@ -73,6 +71,7 @@ public class JavaBot implements BWAPIEventListener {
 		
 		//Choose Strategy for the game
 		Random rand = new Random();
+		//TODO: Hello
 		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
 		if (currentStrat.equals("Goon Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: Goon Rush ==== ");
@@ -80,11 +79,11 @@ public class JavaBot implements BWAPIEventListener {
 		}
 		else if (currentStrat.equals("DT Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: DT Rush ==== ");
-			strategyGoonRush();
+			strategyDTRush();
 		}
 		else if (currentStrat.equals("Carrier Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: Carrier Rush ==== ");
-			strategyGoonRush();
+			strategyCarrierRush();
 		}
 		else {
 			JavaBot.bwapi.printText("I broke");
@@ -192,10 +191,9 @@ public class JavaBot implements BWAPIEventListener {
 				BuildManager.getInstance().toBuild(UnitTypes.Protoss_Pylon);
 			}
 			if(buildingPriorityList.peek() != null) {
-				System.out.println("" + buildingPriorityList.size());
 				UnitType type = bwapi.getUnitType(buildingPriorityList.peek().ordinal());
 				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
-					BuildManager.getInstance().toBuild(buildingPriorityList.pop());
+					BuildManager.getInstance().toBuild(buildingPriorityList.peek());
 				}
 			}
 			//Unreliable count of minerals - worker currently moving to build something but hasn't got there yet
@@ -437,11 +435,11 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	private void strategyDTRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Assimilator));
+		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
 		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
+		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Forge));
 		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Forge));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Citadel_of_Adun));
 		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Gateway));
@@ -461,16 +459,17 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	private void strategyCarrierRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Assimilator));
+		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
 		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Forge));
-		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Photon_Cannon));
+		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
+		initialPriorityList.add(new BuildTime(20, UnitTypes.Protoss_Photon_Cannon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Photon_Cannon));
+		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Gateway));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Nexus));
+		initialPriorityList.add(new BuildTime(22, UnitTypes.Protoss_Photon_Cannon));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Carrier);
 		unitPriorityList.add(UnitTypes.Protoss_Dragoon);

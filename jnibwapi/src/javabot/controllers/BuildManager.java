@@ -2,20 +2,14 @@ package javabot.controllers;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Queue;
 
 import javabot.JavaBot;
 import javabot.models.Unit;
 import javabot.models.UpgradeBuild;
-import javabot.types.TechType;
-import javabot.types.TechType.TechTypes;
 import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType;
-import javabot.types.UpgradeType.UpgradeTypes;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
@@ -75,7 +69,10 @@ public class BuildManager implements Manager {
 				
 				//method not called for assimilator. See unitMorph for Javabot
 				if (weAreBuilding(nextToBuild.ordinal())) {
-					buildOrder.remove();
+					if (JavaBot.initialPriorityList.size() > 0)
+						buildOrder.remove();
+					else
+						JavaBot.buildingPriorityList.remove(buildOrder.remove());
 					workerMovingToBuild = false;
 				}
 			}
@@ -115,7 +112,8 @@ public class BuildManager implements Manager {
 	
 	
 	public void toBuild(UnitTypes building) {
-		buildOrder.add(building);
+		if (!buildOrder.contains(building))
+			buildOrder.add(building);
 	}
 	
 	public void toUpgrade(UpgradeBuild upgrade) {
