@@ -58,7 +58,6 @@ public class BuildManager implements Manager {
 				}
 			}
 		}
-		
 		if (!buildOrder.isEmpty() && !workerMovingToBuild) {
 			UnitTypes nextToBuild = buildOrder.element();
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);

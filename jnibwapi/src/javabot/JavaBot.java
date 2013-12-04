@@ -43,6 +43,8 @@ public class JavaBot implements BWAPIEventListener {
 	private static int stopProbeNum = 0;
 	private static int startProbeNum = 0;
 	
+	private static int count = 0;
+	
 	public static void main(String[] args) {
 		new JavaBot();
 	}
@@ -78,11 +80,11 @@ public class JavaBot implements BWAPIEventListener {
 		}
 		else if (currentStrat.equals("DT Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: DT Rush ==== ");
-			strategyDTRush();
+			strategyGoonRush();
 		}
 		else if (currentStrat.equals("Carrier Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: Carrier Rush ==== ");
-			strategyCarrierRush();
+			strategyGoonRush();
 		}
 		else {
 			JavaBot.bwapi.printText("I broke");
@@ -172,7 +174,7 @@ public class JavaBot implements BWAPIEventListener {
 			}
 			//Not in the 'dead' zone of strat of not building probes, and not waiting for minerals for next unit build
 			//TODO i recommend that probes be placed into strategy and not be independently checked
-			if ((ResourceManager.getInstance().getProbeCount() <= stopProbeNum || ResourceManager.getInstance().getProbeCount() >= startProbeNum) && BuildManager.getInstance().canTrain(UnitTypes.Protoss_Probe)) {
+			if ((ResourceManager.getInstance().getProbeCount() < stopProbeNum || ResourceManager.getInstance().getProbeCount() >= startProbeNum) && BuildManager.getInstance().canTrain(UnitTypes.Protoss_Probe)) {
 				BuildManager.getInstance().toTrain(UnitTypes.Protoss_Probe);
 			}
 			/*
@@ -190,6 +192,7 @@ public class JavaBot implements BWAPIEventListener {
 				BuildManager.getInstance().toBuild(UnitTypes.Protoss_Pylon);
 			}
 			if(buildingPriorityList.peek() != null) {
+				System.out.println("" + buildingPriorityList.size());
 				UnitType type = bwapi.getUnitType(buildingPriorityList.peek().ordinal());
 				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
 					BuildManager.getInstance().toBuild(buildingPriorityList.pop());
@@ -202,7 +205,7 @@ public class JavaBot implements BWAPIEventListener {
 			//Don't have the minerals to try to build something. Lets check if we can build a unit we need instead
 			for (int i = 0; i < unitPriorityList.size(); i++) {
 				UnitType type = bwapi.getUnitType(unitPriorityList.get(i).ordinal());
-				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
+				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice() && type.getSupplyRequired() / 2 <= getSupplyAvailable()) {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
 					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
 						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
@@ -410,19 +413,16 @@ public class JavaBot implements BWAPIEventListener {
 	//ALL STRATEGIES
 	private void strategyGoonRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Assimilator));
+		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
 		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(15, new UpgradeBuild(UpgradeTypes.Singularity_Charge, UnitTypes.Protoss_Cybernetics_Core)));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
+		initialPriorityList.add(new BuildTime(14, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Pylon));
+		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
+		initialPriorityList.add(new BuildTime(17, new UpgradeBuild(UpgradeTypes.Singularity_Charge, UnitTypes.Protoss_Cybernetics_Core)));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Dragoon));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Dark_Templar);
 		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
@@ -432,14 +432,14 @@ public class JavaBot implements BWAPIEventListener {
 		buildingPriorityList.add(UnitTypes.Protoss_Templar_Archives);
 		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
 		
-		stopProbeNum = 15;
-		startProbeNum = 29;
+		stopProbeNum = 0;
+		startProbeNum = 0;
 	}
 	private void strategyDTRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Assimilator));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Cybernetics_Core));
+		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(11, UnitTypes.Protoss_Assimilator));
+		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
 		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Forge));
 		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));

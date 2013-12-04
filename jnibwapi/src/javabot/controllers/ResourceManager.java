@@ -107,15 +107,23 @@ public class ResourceManager implements Manager {
 		}
 		else if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal() && !gasNodes.contains(u)) {
 			gasNodes.add(u);
-			
-			
+						
 			for (int i = 0; i < 3; i++) {
 				if (mineralWorkers.size() > 0) {
 					int id = getClosestMineralWorker(u);
-					
-					JavaBot.bwapi.rightClick(mineralWorkers.get(id).getID(), u.getID());
-					gasWorkers.add(mineralWorkers.get(id));
-					mineralWorkers.remove(id);
+					try {
+						for (Unit worker : mineralWorkers) {
+							if (worker.getID() == id) {
+								JavaBot.bwapi.rightClick(id, u.getID());
+								gasWorkers.add(worker);
+								mineralWorkers.remove(worker);
+							}
+						}
+
+					} catch (Throwable t) {
+						System.out.println(t.getMessage());
+					}
+
 				}
 			}
 			

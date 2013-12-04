@@ -47,8 +47,9 @@ public class ScoutSquad extends Squad {
 			}
 			
 			if (status == DANGER) {
-				JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
-				status = RETREATING;
+				JavaBot.bwapi.move(scout.getID(), 1, 1);
+				//JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
+				//status = RETREATING;
 			}
 			if (status == RETREATING) {
 				//reassign probe back to resource manager if we are closer to our homebase than to enemy 
