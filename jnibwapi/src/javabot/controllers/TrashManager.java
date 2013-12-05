@@ -2,7 +2,7 @@ package javabot.controllers;
 
 import javabot.models.Unit;
 
-public class TrashManager implements Manager {
+public class TrashManager {
 	private static TrashManager instance = null;
 	
 	private TrashManager() {
@@ -16,32 +16,8 @@ public class TrashManager implements Manager {
 		return instance;
 	}
 	
-	public void reset() {
-		// HA! THERES NO NEED FOR RESET HERE!
-	}
-
-	@Override
-	public void act() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void gameUpdate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void assignUnit(Unit unit) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int removeUnit(int unitId) {
-		// TODO Auto-generated method stub
-		return -1;
+	public void printMessage(String msg) {
+		JavaBot.bwapi.printText(msg);
 	}
 
 }
