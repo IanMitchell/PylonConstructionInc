@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import javabot.JavaBot;
+import javabot.models.BaseLocation;
+import javabot.models.ScoutSquad;
 import javabot.models.Squad;
 import javabot.models.Unit;
 import javabot.models.UpgradeBuild;
 import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType;
+import javabot.util.BWColor;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
@@ -22,6 +25,8 @@ public class BuildManager implements Manager {
 	private LinkedList<UpgradeBuild> upgradeOrder;
 	private Point homeBaseChokePoint;
 	public boolean workerMovingToBuild = false;
+	private boolean buildingNexus = false;
+	private int buildFrameCount = 0;
 	
 	private BuildManager() {
 	}
@@ -40,6 +45,9 @@ public class BuildManager implements Manager {
 		upgradeOrder = new LinkedList<UpgradeBuild>();
 		unitOrder = new LinkedList<UnitTypes>();
 		homeBaseChokePoint = Squad.getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
+		buildFrameCount = 0;
+		workerMovingToBuild = false;
+		buildingNexus = false;
 	}
 	
 	@Override
@@ -61,12 +69,35 @@ public class BuildManager implements Manager {
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 			if (worker != -1) {
 				
-				Point buildTile;
+				Point buildTile = new Point(-1,-1);
 				System.out.println("FINDING BUILD TILE FOR: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
 				if (nextToBuild.ordinal() == UnitTypes.Protoss_Photon_Cannon.ordinal()) {
 					int midPointX = (homeBaseChokePoint.x + JavaBot.homePositionX)/2;
 					int midPointY = (homeBaseChokePoint.y + JavaBot.homePositionY)/2;
 					buildTile = getBuildTile(worker, nextToBuild.ordinal(), midPointX, midPointY);
+				}
+				else if (nextToBuild.ordinal() == UnitTypes.Protoss_Nexus.ordinal() && !buildingNexus) {
+					//build nexus at homebase (we got destroyed) or build nexus at next closest unoccupied mineral field
+					if (JavaBot.homeBase.getHitPoints() == 0) {
+						System.out.println("   NEXUS DESTROYED. REBUILDING.");
+						buildTile = new Point(JavaBot.homeBase.getTileX(), JavaBot.homeBase.getTileY());
+					}
+					else {
+						System.out.println("   TRYING TO FIND SUITABLE LOCATION FOR NEW NEXUS.");
+						double closestDistance = Double.MAX_VALUE;
+						for (BaseLocation base : JavaBot.bwapi.getMap().getBaseLocations()) {
+							Point baseLocation = new Point(base.getX(), base.getY());
+							double distanceFromHomeBase = Squad.getDistance(new Point(JavaBot.homePositionX, JavaBot.homePositionY ), baseLocation);
+							
+							if (!base.isStartLocation() && distanceFromHomeBase < closestDistance) {
+								System.out.println("   FOUND LOCATION AT " + baseLocation.toString());
+								closestDistance = distanceFromHomeBase;
+								buildTile = new Point(base.getX(), base.getY());
+							}
+						}
+					}
+					JavaBot.bwapi.drawCircle(buildTile.x, buildTile.y, 400, BWColor.RED, true, true);
+					buildingNexus = true;
 				}
 				else {
 					buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
@@ -75,6 +106,7 @@ public class BuildManager implements Manager {
 				//build structure if we found a good spot + aren't already building it + can afford it
 				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()) 
 				 && canAfford(JavaBot.bwapi.getUnitType(nextToBuild.ordinal())) && !workerMovingToBuild)) {
+					buildFrameCount = JavaBot.bwapi.getFrameCount();
 					workerMovingToBuild = true;
 					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
 					System.out.println("ABOUT TO BUILD: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
@@ -88,11 +120,12 @@ public class BuildManager implements Manager {
 					if (JavaBot.initialPriorityList.isEmpty())
 						JavaBot.buildingPriorityList.remove(unit);
 				}
-				else {
-					workerMovingToBuild = false;
-				}
 			}
 		}
+		
+		//prevent lock on worker not actually building structure
+		if (workerMovingToBuild == true && (buildFrameCount + 100) < JavaBot.bwapi.getFrameCount())
+			workerMovingToBuild = false;
 		
 		if (!upgradeOrder.isEmpty()) {
 			UpgradeBuild nextToUpgrade = upgradeOrder.element();
@@ -160,7 +193,8 @@ public class BuildManager implements Manager {
 	}
 	
 	public void toTrain(UnitTypes unit) {
-		unitOrder.add(unit);
+		if (!unitOrder.contains(unit))
+			unitOrder.add(unit); 
 	}
 	
 	
@@ -271,8 +305,13 @@ public class BuildManager implements Manager {
 						// units that are blocking the tile
 						boolean unitsInWay = false;
 						for (Unit u : JavaBot.bwapi.getAllUnits()) {
-							if (u.getID() == builderID) continue;
-							if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
+							if (u.getID() == builderID) 
+								continue;
+							else if (buildingTypeID == UnitTypes.Protoss_Stargate.ordinal() && (Math.abs(u.getTileX()-i) < unitType.getTileWidth()) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()))
+								unitsInWay = true;
+							else if (buildingTypeID == UnitTypes.Protoss_Probe.ordinal() && u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && ScoutSquad.inRange(new Point(u.getX(), u.getY()), new Point(i,j), 220))
+								unitsInWay = true;
+							else if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
 								unitsInWay = true;
 						}
 						if (!unitsInWay) {

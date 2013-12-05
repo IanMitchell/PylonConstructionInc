@@ -17,10 +17,11 @@ import javabot.types.UpgradeType.UpgradeTypes;
 import javabot.util.BWColor;
 
 public class JavaBot implements BWAPIEventListener {
-	public static JNIBWAPI bwapi;
-	public static Player player;
-	public static int homePositionX;
-	public static int homePositionY;
+	 public static JNIBWAPI bwapi;
+	 public static Player player;
+	 public static Unit homeBase = null;
+	 public static int homePositionX;
+	 public static int homePositionY;
 	
 	private static HashMap<String, Manager> managers = new HashMap<String, Manager>();
 	
@@ -31,6 +32,8 @@ public class JavaBot implements BWAPIEventListener {
 	public static Deque<BuildTime> initialPriorityList = new ArrayDeque<BuildTime>();
 	public static List<UnitTypes> unitPriorityList = new LinkedList<UnitTypes>();
 	public static Deque<UnitTypes> buildingPriorityList = new ArrayDeque<UnitTypes>();
+	public static Deque<UpgradeBuild> upgradePriorityList = new ArrayDeque<UpgradeBuild>();
+
 	
 	private static List<Unit> assignedUnits = new ArrayList<Unit>();
 	
@@ -148,7 +151,6 @@ public class JavaBot implements BWAPIEventListener {
 				UpgradeType type = bwapi.getUpgradeType(bt.getUpgrade().getUpgrade().ordinal());
 				if (type == null) {
 					return;
-					//bwapi.printText("Found unknown tech to research"); NEED TO FIGURE OUT HOW TO RESEARCH DRAGOON RANGE!!!!
 				}
 				resourceCost[0] = type.getMineralPriceBase();
 				resourceCost[1] = type.getGasPriceBase();	
@@ -187,7 +189,7 @@ public class JavaBot implements BWAPIEventListener {
 		//No longer in static build order. Based off of unitPriorityList and buildingPriorityList, call for stuff to be built
 		else {
 			//Build a pylon when we need it
-			if (getSupplyAvailable() < 4) {
+			if (getSupplyAvailable() < 4 || (getSupplyAvailable() < 6 && player.getSupplyTotal()/2 > 60)) {
 				BuildManager.getInstance().toBuild(UnitTypes.Protoss_Pylon);
 			}
 			if(buildingPriorityList.peek() != null) {
@@ -195,6 +197,9 @@ public class JavaBot implements BWAPIEventListener {
 				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice()) {
 					BuildManager.getInstance().toBuild(buildingPriorityList.peek());
 				}
+			}
+			if (upgradePriorityList.peek() != null) {
+				BuildManager.getInstance().toUpgrade(upgradePriorityList.pop());
 			}
 			//Unreliable count of minerals - worker currently moving to build something but hasn't got there yet
 			/*
@@ -207,6 +212,7 @@ public class JavaBot implements BWAPIEventListener {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
 					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
 						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
+						bwapi.printText("Attempting to train " + unitPriorityList.get(i).name());
 						break;
 					}
 				}
@@ -220,11 +226,11 @@ public class JavaBot implements BWAPIEventListener {
 		
 		// Remember our homeTilePosition at the first frame
 		if (bwapi.getFrameCount() == 1) {
-			int cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Terran_Command_Center.ordinal(), 0, 0);
-			if (cc == -1) cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Zerg_Hatchery.ordinal(), 0, 0);
-			if (cc == -1) cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
-			homePositionX = bwapi.getUnit(cc).getX();
-			homePositionY = bwapi.getUnit(cc).getY();
+			int cc = BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Nexus.ordinal(), 0, 0);
+			homeBase = bwapi.getUnit(cc);
+			homePositionX = homeBase.getX();
+			homePositionY = homeBase.getY();
+			
 			BuildManager.getInstance().assignUnit(bwapi.getUnit(cc));
 			ResourceManager.getInstance().gameStart(bwapi.getMyUnits());
 		}
@@ -278,22 +284,18 @@ public class JavaBot implements BWAPIEventListener {
 	public void unitCreate(int unitID) {
 		Unit u = bwapi.getUnit(unitID);
 		UnitType type = bwapi.getUnitType(u.getTypeID());
-		//bwapi.printText(type.getName() + " has been started construction.");
 		
 		if (type.isWorker()) {
-			//bwapi.printText("Assigning worker to ResourceManager");
 			assignUnit(bwapi.getUnit(unitID), ResourceManager.class.getSimpleName());
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isAttackCapable() || type.isSpellcaster()) {
-			//bwapi.printText("Assigning attacking unit to ArmyManager");
 			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isBuilding()) {
 			int builderId = bwapi.getUnit(BuildManager.getInstance().getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), u.getX(), u.getY())).getID();
 			
-			//bwapi.printText("Assigning building to BuildingManager");
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 			
 			//reassigns worker from resource mgr -> scout mgr on start of first pylon construction
@@ -301,7 +303,6 @@ public class JavaBot implements BWAPIEventListener {
 				bwapi.printText("Assigning scout to ScoutManager");
 				if (!alreadyGaveScout) {
 					alreadyGaveScout = true;
-					//bwapi.printText("Assigning scout to ScoutManager");
 					assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
 				}
 			}
@@ -487,6 +488,7 @@ public class JavaBot implements BWAPIEventListener {
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 		buildingPriorityList.add(UnitTypes.Protoss_Stargate);
 		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
+		upgradePriorityList.add(new UpgradeBuild(UpgradeTypes.Carrier_Capacity, UnitTypes.Protoss_Fleet_Beacon));
 
 		
 		stopProbeNum = 0;
@@ -495,9 +497,6 @@ public class JavaBot implements BWAPIEventListener {
 	private void strategyZealotRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(12, UnitTypes.Protoss_Zealot));
-		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(14, UnitTypes.Protoss_Pylon));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Zealot);
 		
@@ -514,3 +513,4 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	
 }
+
