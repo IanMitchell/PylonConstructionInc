@@ -207,6 +207,7 @@ public class JavaBot implements BWAPIEventListener {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
 					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
 						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
+						break;
 					}
 				}
 			}	
@@ -491,6 +492,22 @@ public class JavaBot implements BWAPIEventListener {
 		stopProbeNum = 0;
 		startProbeNum = 0;
 	}
-	
+	private void strategyZealotRush() {
+		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
+		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
+		
+		unitPriorityList.add(UnitTypes.Protoss_Zealot);
+		
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+
+
+		
+		stopProbeNum = 0;
+		startProbeNum = 0;
+	}
 	
 }
