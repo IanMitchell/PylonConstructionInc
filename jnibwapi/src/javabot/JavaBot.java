@@ -142,7 +142,6 @@ public class JavaBot implements BWAPIEventListener {
 			if (bt.getUnit() != null) {
 				UnitType type = bwapi.getUnitType(bt.getUnit().ordinal());
 				if (type == null) {
-					bwapi.printText("Found unknown unit");
 				}
 				resourceCost[0] = type.getMineralPrice();
 				resourceCost[1] = type.getGasPrice();
@@ -212,7 +211,6 @@ public class JavaBot implements BWAPIEventListener {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
 					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
 						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
-						bwapi.printText("Attempting to train " + unitPriorityList.get(i).name());
 						break;
 					}
 				}
@@ -300,7 +298,6 @@ public class JavaBot implements BWAPIEventListener {
 			
 			//reassigns worker from resource mgr -> scout mgr on start of first pylon construction
 			if (u.getTypeID() == UnitTypes.Protoss_Pylon.ordinal() && BuildManager.getInstance().getBuildingCount(UnitTypes.Protoss_Pylon.ordinal()) == 1) {
-				bwapi.printText("Assigning scout to ScoutManager");
 				if (!alreadyGaveScout) {
 					alreadyGaveScout = true;
 					assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
