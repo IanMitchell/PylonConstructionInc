@@ -9,7 +9,7 @@ public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
         private int actCount = 0;
-        private int msgCount = 30;
+        private int msgCount = 40;
         
         private String[] messages = new String[msgCount];
 
@@ -37,14 +37,26 @@ public class TrashManager implements Manager {
             messages[19] = "Just doin our job, takin out the trash";
             messages[20] = "Good thing your marines have life insurance";
             messages[21] = "#thanksobama";
-            messages[22] = "Antonia, there is no shame in surrendering, of course";
-            messages[23] = "Go ahead. Just raise the white flag";
-            messages[24] = "I'm sure no one would judge you.";
-            messages[25] = "We're kinda what you would call professionals in our business";
-            messages[26] = "What business you ask? We're in the industry of winning";
-            messages[27] = "Oh look. Our Templars are TERRAN it up.";
-            messages[28] = "Ok seriously I'm running out of things to say";
-            messages[29] = "Can we just go play Age of Empires now? Please?";
+            
+            messages[22] = "One time, I was walking in a park";
+            messages[23] = "I saw some rabbits, some flowers, some dogs";
+            messages[24] = "Eventually I came across a dirt path, the road less travelled by";
+            messages[25] = "I was pretty bored at the time, so I went down this path";
+            messages[26] = "It was pretty overgrown with blackberry bushes";
+            messages[27] = "Being winter, there weren't any berries unfortunately";
+            messages[28] = "As I kept walking, I found a small pond";
+            messages[29] = "I was fascinated by it. I had no idea it was there";
+            messages[30] = "It also had a very grimy, scummy look about it";
+            messages[31] = "Not unlike that of your group member, Antonia.";
+            
+            messages[32] = "Antonia, there is no shame in surrendering, of course";
+            messages[33] = "Go ahead. Just raise the white flag";
+            messages[34] = "I'm sure no one would judge you.";
+            messages[35] = "We're kinda what you would call professionals in our business";
+            messages[36] = "What business you ask? We're in the industry of winning";
+            messages[37] = "Oh look. Our Templars are TERRAN it up.";
+            messages[38] = "Ok seriously I'm running out of things to say";
+            messages[39] = "Can we just go play Age of Empires now? Please?";
         }
         
         public static TrashManager getInstance() {
@@ -66,7 +78,7 @@ public class TrashManager implements Manager {
                                 printMessage(messages[msg]);
                         }
                         else {
-                        	actCount = 0;
+                        	printMessage("gg scrubs");
                         }
                 }
         }
