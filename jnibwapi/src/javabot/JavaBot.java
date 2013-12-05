@@ -429,6 +429,8 @@ public class JavaBot implements BWAPIEventListener {
 		buildingPriorityList.add(UnitTypes.Protoss_Citadel_of_Adun);
 		buildingPriorityList.add(UnitTypes.Protoss_Templar_Archives);
 		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 		
 		stopProbeNum = 0;
 		startProbeNum = 0;
@@ -449,10 +451,13 @@ public class JavaBot implements BWAPIEventListener {
 		initialPriorityList.add(new BuildTime(22, UnitTypes.Protoss_Templar_Archives));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Dark_Templar);
+		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
 		unitPriorityList.add(UnitTypes.Protoss_Zealot);
 				
 		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
 		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 
 		stopProbeNum = 0;
 		startProbeNum = 0;
@@ -478,6 +483,10 @@ public class JavaBot implements BWAPIEventListener {
 		buildingPriorityList.add(UnitTypes.Protoss_Stargate);
 		buildingPriorityList.add(UnitTypes.Protoss_Fleet_Beacon);
 		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
+		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
+		buildingPriorityList.add(UnitTypes.Protoss_Stargate);
+		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
+
 		
 		stopProbeNum = 0;
 		startProbeNum = 0;
