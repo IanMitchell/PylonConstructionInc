@@ -56,6 +56,7 @@ public class TrashManager implements Manager {
             messages[35] = "We're kinda what you would call professionals in our business";
             messages[36] = "What business you ask? We're in the industry of winning";
             messages[37] = "Oh look. Our Templars are TERRAN it up.";
+            messages[38] = "GET IT? TERRAN? GET IT?";
             
             messages[39] = "It's ok Matt";
             messages[40] = "Not everyone can code an Aritifical Intelligence";
