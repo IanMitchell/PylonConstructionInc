@@ -8,9 +8,9 @@ import javabot.models.Unit;
 public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
-        private int msgDelay = 10;
+        private int msgDelay = 6;
         private int actCount = 0;
-        private int msgCount = 44;
+        private int msgCount = 56;
         
         private String[] messages = new String[msgCount];
 
@@ -56,12 +56,25 @@ public class TrashManager implements Manager {
             messages[35] = "We're kinda what you would call professionals in our business";
             messages[36] = "What business you ask? We're in the industry of winning";
             messages[37] = "Oh look. Our Templars are TERRAN it up.";
-            messages[38] = "Ok seriously I'm running out of things to say";
-            messages[39] = "Can we just go play Age of Empires now? Please?";
-            messages[40] = "Screw it. I'm gonna make an AI to post these messages for me";
-            messages[41] = "Hmm, put this here, and put that here...";
-            messages[42] = "Hey, it compiles! Ship it.";
-            messages[43] = "Alright, let's run it!";
+            
+            messages[39] = "It's ok Matt";
+            messages[40] = "Not everyone can code an Aritifical Intelligence";
+            messages[41] = "Some people were just meant for other things.";
+            messages[42] = "And Tony, don't think we've forgotten you";
+            messages[43] = "I mean, it really doesn't take that much effort to beat your AI";
+            messages[44] = "Not like we have to concentrate or anything.";
+            messages[45] = "But anyways. Do you make good pizza?";
+            messages[46] = "Cuz like, with a name like Tony, you HAVE to make a good pizaa";
+            messages[47] = "And I wouldn't mind taking a food break right now";
+            messages[48] = "In all honesty, your AI could use the time to catch up";
+            messages[49] = "So whatcha say. Be a pal?";
+            
+            messages[50] = "Ok seriously I'm running out of things to say";
+            messages[51] = "Can we just go play Age of Empires now? Please?";
+            messages[52] = "Screw it. I'm gonna make an AI to post these messages for me";
+            messages[53] = "Hmm, put this here, and put that here...";
+            messages[54] = "Hey, it compiles! Ship it.";
+            messages[55] = "Alright, let's run it!";
         }
         
         public static TrashManager getInstance() {
