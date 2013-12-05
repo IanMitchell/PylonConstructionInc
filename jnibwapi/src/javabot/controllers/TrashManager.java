@@ -9,7 +9,7 @@ public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
         private int actCount = 0;
-        private int msgCount = 5;
+        private int msgCount = 25;
         
         private String[] messages = new String[msgCount];
 
@@ -18,8 +18,28 @@ public class TrashManager implements Manager {
             messages[0] = "Sup Nick.";
             messages[1] = "Ready for some embarassment?";
             messages[2] = "We're gonna send you to the stone age.";
-            messages[3] = "Yo Mama so far she can turn a Creep Colony into a Sunken Colony.";
-            messages[4] = "Go step on a lego.";  
+            messages[3] = "Yo Mama so fat she can turn a Creep Colony into a Sunken Colony.";
+            messages[4] = "Go step on a lego.";
+            messages[5] = "Ben, just know that...";
+            messages[6] = "We're no strangers to love";
+            messages[7] = "You know the rules and so do I";
+            messages[8] = "A full commitment's what I'm thinking of";
+            messages[9] = "You wouldn't get this from any other guy";
+            messages[10] = "I just want to tell you how I'm feeling";
+            messages[11] = "Gotta make you understand";
+            messages[12] = "Never gonna give you up";
+            messages[13] = "Never gonna let you down";
+            messages[14] = "Never gonna run around and desert you";
+            messages[15] = "Never gonna make you cry";
+            messages[16] = "Never gonna say goodbye";
+            messages[17] = "Never gonna tell a lie and hurt you";
+            messages[18] = "lol jk we're gonna crush you";
+            messages[19] = "Just doin our job, takin out the trash";
+            messages[20] = "Good thing your marines have life insurance";
+            messages[21] = "#thanksobama";
+            messages[22] = "No shame in surrendering, of course";
+            messages[23] = "Go ahead. Just raise the white flag";
+            messages[24] = "I'm sure no one would judge you.";
         }
         
         public static TrashManager getInstance() {
@@ -36,7 +56,7 @@ public class TrashManager implements Manager {
                 actCount++;
                 
                 if ((actCount % 5) == 0) {
-                        int msg = actCount / 5;
+                        int msg = (actCount / 5) - 1;
                         if (msg < msgCount) {
                                 printMessage(messages[msg]);
                         }
