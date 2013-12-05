@@ -8,6 +8,7 @@ import javabot.models.Unit;
 public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
+        private int msgDelay = 10;
         private int actCount = 0;
         private int msgCount = 44;
         
@@ -76,8 +77,8 @@ public class TrashManager implements Manager {
                 // TODO Auto-generated method stub
                 actCount++;
                 
-                if ((actCount % 5) == 0) {
-                        int msg = (actCount / 5) - 1;
+                if ((actCount % msgDelay) == 0) {
+                        int msg = (actCount / msgDelay) - 1;
                         if (msg < msgCount) {
                                 printMessage(messages[msg]);
                         }
