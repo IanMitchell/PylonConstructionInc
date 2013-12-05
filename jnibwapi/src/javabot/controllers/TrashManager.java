@@ -40,7 +40,7 @@ public class TrashManager implements Manager {
             
             messages[22] = "One time, I was walking in a park";
             messages[23] = "I saw some rabbits, some flowers, some dogs";
-            messages[24] = "Eventually I came across a dirt path, the road less travelled by";
+            messages[24] = "Eventually I came across a dirt path, the road less traveled by";
             messages[25] = "I was pretty bored at the time, so I went down this path";
             messages[26] = "It was pretty overgrown with blackberry bushes";
             messages[27] = "Being winter, there weren't any berries unfortunately";
