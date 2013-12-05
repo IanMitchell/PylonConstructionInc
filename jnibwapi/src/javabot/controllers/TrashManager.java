@@ -9,7 +9,7 @@ public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
         private int actCount = 0;
-        private int msgCount = 40;
+        private int msgCount = 44;
         
         private String[] messages = new String[msgCount];
 
@@ -57,6 +57,10 @@ public class TrashManager implements Manager {
             messages[37] = "Oh look. Our Templars are TERRAN it up.";
             messages[38] = "Ok seriously I'm running out of things to say";
             messages[39] = "Can we just go play Age of Empires now? Please?";
+            messages[40] = "Screw it. I'm gonna make an AI to post these messages for me";
+            messages[41] = "Hmm, put this here, and put that here...";
+            messages[42] = "Hey, it compiles! Ship it.";
+            messages[43] = "Alright, let's run it!";
         }
         
         public static TrashManager getInstance() {
