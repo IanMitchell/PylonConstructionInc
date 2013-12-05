@@ -85,7 +85,7 @@ public class TrashManager implements Manager {
         }
         
         public void printMessage(String msg) {
-       		JavaBot.bwapi.printText(msg);
+       		JavaBot.bwapi.sendText(msg);
         }
 
 		@Override
