@@ -65,39 +65,14 @@ public class BuildManager implements Manager {
 		}
 		if (!buildOrder.isEmpty() && !workerMovingToBuild) {
 			UnitTypes nextToBuild = buildOrder.element();
-			System.out.println("NEXT UNIT TO BUILD: " + nextToBuild.toString());
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 			if (worker != -1) {
 				
 				Point buildTile = new Point(-1,-1);
-				System.out.println("FINDING BUILD TILE FOR: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
 				if (nextToBuild.ordinal() == UnitTypes.Protoss_Photon_Cannon.ordinal()) {
 					int midPointX = (homeBaseChokePoint.x + JavaBot.homePositionX)/2;
 					int midPointY = (homeBaseChokePoint.y + JavaBot.homePositionY)/2;
 					buildTile = getBuildTile(worker, nextToBuild.ordinal(), midPointX, midPointY);
-				}
-				else if (nextToBuild.ordinal() == UnitTypes.Protoss_Nexus.ordinal() && !buildingNexus) {
-					//build nexus at homebase (we got destroyed) or build nexus at next closest unoccupied mineral field
-					if (JavaBot.homeBase.getHitPoints() == 0) {
-						System.out.println("   NEXUS DESTROYED. REBUILDING.");
-						buildTile = new Point(JavaBot.homeBase.getTileX(), JavaBot.homeBase.getTileY());
-					}
-					else {
-						System.out.println("   TRYING TO FIND SUITABLE LOCATION FOR NEW NEXUS.");
-						double closestDistance = Double.MAX_VALUE;
-						for (BaseLocation base : JavaBot.bwapi.getMap().getBaseLocations()) {
-							Point baseLocation = new Point(base.getX(), base.getY());
-							double distanceFromHomeBase = Squad.getDistance(new Point(JavaBot.homePositionX, JavaBot.homePositionY ), baseLocation);
-							
-							if (!base.isStartLocation() && distanceFromHomeBase < closestDistance) {
-								System.out.println("   FOUND LOCATION AT " + baseLocation.toString());
-								closestDistance = distanceFromHomeBase;
-								buildTile = new Point(base.getX(), base.getY());
-							}
-						}
-					}
-					JavaBot.bwapi.drawCircle(buildTile.x, buildTile.y, 400, BWColor.RED, true, true);
-					buildingNexus = true;
 				}
 				else {
 					buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
@@ -109,7 +84,6 @@ public class BuildManager implements Manager {
 					buildFrameCount = JavaBot.bwapi.getFrameCount();
 					workerMovingToBuild = true;
 					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
-					System.out.println("ABOUT TO BUILD: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
 				}
 				
 				//method not called for assimilator. See unitMorph for Javabot
@@ -174,6 +148,7 @@ public class BuildManager implements Manager {
 		int building = unitType.getWhatBuildID();
 		
 		for (int i=0; i<buildings.size(); i++) {
+
 			if (JavaBot.bwapi.getUnit(buildings.get(i)).getTypeID() == building && JavaBot.bwapi.getUnit(buildings.get(i)).getTrainingQueueSize() == 0) {
 				return canBuildUnit(buildings.get(i), unitType);
 			}
@@ -312,11 +287,11 @@ public class BuildManager implements Manager {
 							else if (buildingTypeID == UnitTypes.Protoss_Probe.ordinal() && u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && ScoutSquad.inRange(new Point(u.getX(), u.getY()), new Point(i,j), 220))
 								unitsInWay = true;
 							else if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
+							//else if ((Math.abs(u.getTileX()-i) < 3) && (Math.abs(u.getTileY()-j) < 3))
 								unitsInWay = true;
 						}
 						if (!unitsInWay) {
 							ret.x = i; ret.y = j;
-							System.out.println("Found a suitable build location for: " + unitType.getName());
 							return ret;
 						}
 						

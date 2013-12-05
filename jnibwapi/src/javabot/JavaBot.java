@@ -216,6 +216,13 @@ public class JavaBot implements BWAPIEventListener {
 				}
 			}	
 		}
+		
+		//build intercepters (the little guys on carriers)
+		for (Unit unit : bwapi.getMyUnits()) {
+			if (unit.getTypeID() == UnitTypes.Protoss_Carrier.ordinal()) {
+				bwapi.train(unit.getID(), UnitTypes.Protoss_Interceptor.ordinal());
+			}
+		}
 	}
 	
 	
@@ -427,7 +434,6 @@ public class JavaBot implements BWAPIEventListener {
 		
 		buildingPriorityList.add(UnitTypes.Protoss_Citadel_of_Adun);
 		buildingPriorityList.add(UnitTypes.Protoss_Templar_Archives);
-		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 		
@@ -454,7 +460,6 @@ public class JavaBot implements BWAPIEventListener {
 		unitPriorityList.add(UnitTypes.Protoss_Zealot);
 				
 		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
-		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 
@@ -472,7 +477,6 @@ public class JavaBot implements BWAPIEventListener {
 		initialPriorityList.add(new BuildTime(20, UnitTypes.Protoss_Photon_Cannon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Nexus));
 		initialPriorityList.add(new BuildTime(22, UnitTypes.Protoss_Photon_Cannon));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Carrier);
