@@ -495,6 +495,9 @@ public class JavaBot implements BWAPIEventListener {
 	private void strategyZealotRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(12, UnitTypes.Protoss_Zealot));
+		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Gateway));
+		initialPriorityList.add(new BuildTime(14, UnitTypes.Protoss_Pylon));
 		
 		unitPriorityList.add(UnitTypes.Protoss_Zealot);
 		

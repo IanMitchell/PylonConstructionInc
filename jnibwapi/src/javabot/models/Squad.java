@@ -5,6 +5,10 @@ import java.util.*;
 
 import javabot.JavaBot;
 import javabot.controllers.ArmyManager;
+import javabot.controllers.BuildManager;
+import javabot.controllers.ResourceManager;
+import javabot.types.UnitType;
+import javabot.types.UnitType.UnitTypes;
 import javabot.util.BWColor;
 
 public class Squad {
@@ -22,6 +26,8 @@ public class Squad {
 	protected Point homeChokePoint;
 	protected Point lastOrderPoint;
 
+	private int updateCount = 0;
+	
 	public Squad() {
 		status = IDLE;
 		squad = new ArrayList<Unit>();
@@ -34,15 +40,19 @@ public class Squad {
 	}
 	
 	public void update() {
+		updateCount++;
 		updateSquadPos();
 		if(squad.size() > 0) {
 			moveStragglers();
 			setEnemies(NEARBY_RADIUS);
 			int combatScore = combatSimScore();
+			if(updateCount % 100 == 0) {
+				JavaBot.bwapi.printText("combatSimScore: " + combatScore);
+			}
 			int newStatus = 0;
 			Point latestOrder;
 			
-			if(squad.size() >= 2 && combatScore >= 1) {
+			if(squad.size() >= 2 && combatScore >= 10) {
 				newStatus = ATTACKING;
 				latestOrder = rallyPoint;
 			}
@@ -52,7 +62,7 @@ public class Squad {
 				}
 				latestOrder = homeChokePoint;
 			}
-			if(status != newStatus && !lastOrderPoint.equals(latestOrder)) {
+			if(status != newStatus) {
 				JavaBot.bwapi.printText("New order");
 				status = newStatus;
 				lastOrderPoint = latestOrder;
@@ -140,7 +150,27 @@ public class Squad {
 	}
 	
 	public int combatSimScore() {
-		return squad.size() - enemies.size();
+		int score = 0;
+		for(Unit u : enemies) {
+			UnitType type = JavaBot.bwapi.getUnitType(u.getTypeID());
+			if(type.isWorker()) {
+				//Worker is worthless atm
+				score -= 0;
+			}
+			else if(type.isAttackCapable()) {
+				score -= (u.getHitPoints()/type.getMaxHitPoints()) * type.getSupplyRequired() * 10;
+			}
+			else if(u.getTypeID() == UnitTypes.Terran_Bunker.ordinal()) {
+				score -= (u.getHitPoints()/type.getMaxHitPoints()) * 200;
+			}
+		}
+		for(Unit u : squad) {
+			UnitType type = JavaBot.bwapi.getUnitType(u.getTypeID());
+			//A full health zealot is worth 40
+			//A little arbitrary. Just need to go back and forth until the right value is met in terms of worker/bunker worth to units
+			score += (u.getHitPoints()/type.getMaxHitPoints()) * type.getSupplyRequired() * 10;
+		}
+		return score;
 	}
 	
 	protected void updateSquadPos() {
