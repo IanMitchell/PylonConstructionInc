@@ -9,7 +9,7 @@ public class TrashManager implements Manager {
         private static TrashManager instance = null;
         
         private int actCount = 0;
-        private int msgCount = 25;
+        private int msgCount = 30;
         
         private String[] messages = new String[msgCount];
 
@@ -37,9 +37,14 @@ public class TrashManager implements Manager {
             messages[19] = "Just doin our job, takin out the trash";
             messages[20] = "Good thing your marines have life insurance";
             messages[21] = "#thanksobama";
-            messages[22] = "No shame in surrendering, of course";
+            messages[22] = "Antonia, there is no shame in surrendering, of course";
             messages[23] = "Go ahead. Just raise the white flag";
             messages[24] = "I'm sure no one would judge you.";
+            messages[25] = "We're kinda what you would call professionals in our business";
+            messages[26] = "What business you ask? We're in the industry of winning";
+            messages[27] = "Oh look. Our Templars are TERRAN it up.";
+            messages[28] = "Ok seriously I'm running out of things to say";
+            messages[29] = "Can we just go play Age of Empires now? Please?";
         }
         
         public static TrashManager getInstance() {
@@ -59,6 +64,9 @@ public class TrashManager implements Manager {
                         int msg = (actCount / 5) - 1;
                         if (msg < msgCount) {
                                 printMessage(messages[msg]);
+                        }
+                        else {
+                        	actCount = 0;
                         }
                 }
         }
