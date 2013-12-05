@@ -104,7 +104,7 @@ public class JavaBot implements BWAPIEventListener {
 		
 		// set game speed to 30 (0 is the fastest. Tournament speed is 20)
 		// You can also change the game speed from within the game by "/speed X" command.
-		bwapi.setGameSpeed(25);
+		bwapi.setGameSpeed(20);
 		
 		// analyze the map
 		bwapi.loadMapData(true);
@@ -253,9 +253,9 @@ public class JavaBot implements BWAPIEventListener {
 		// Draw debug information on screen
 		drawDebugInfo();
 		
-		if (bwapi.getFrameCount() % 3500 == 0) {
+		/*if (bwapi.getFrameCount() % 3500 == 0) {
 			scoutAssignUnit(ResourceManager.getInstance().giveMineralUnit(), ScoutManager.class.getSimpleName());
-		}
+		}*/
 		
 		// Call the act() method every 30 frames
 		if (bwapi.getFrameCount() % 30 == 0) {
@@ -332,12 +332,12 @@ public class JavaBot implements BWAPIEventListener {
 		managers.get(manager).assignUnit(unit);
 	}
 	
-	private static void scoutAssignUnit(Unit myUnit, String toManager) {
+	/*private static void scoutAssignUnit(Unit myUnit, String toManager) {
 		JavaBot.bwapi.printText("Removed mineral worker for scout");
 
 		if (myUnit.getTypeID() == UnitTypes.Protoss_Probe.ordinal())
 			managers.get(toManager).assignUnit(myUnit);
-	}
+	}*/
 	
 	/**
 	 * Reassings uni

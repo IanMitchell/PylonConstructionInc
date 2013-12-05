@@ -43,19 +43,20 @@ public class ScoutSquad extends Squad {
 			
 			//idleCount is used because right before it scouts, it goes into idle. 
 			if ((status == IDLE || scout.isIdle()) && ++idleCount > 1) {
-				JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
+				for(BaseLocation base : ScoutManager.bases) 
+					JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
 			}
 			
 			if (status == DANGER) {
-				JavaBot.bwapi.move(scout.getID(), 1, 1);
+				for(BaseLocation base : ScoutManager.bases) {
+					JavaBot.bwapi.move(scout.getID(), (JavaBot.homePositionX + base.getX())/2, (JavaBot.homePositionY + base.getY())/2);
+				}
 				//JavaBot.bwapi.move(scout.getID(), JavaBot.homePositionX, JavaBot.homePositionY);
 				//status = RETREATING;
 			}
 			if (status == RETREATING) {
-				//reassign probe back to resource manager if we are closer to our homebase than to enemy 
-				if ((inRange(squadCenter, new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400) && 
-				 scout.getTypeID() == UnitTypes.Protoss_Probe.ordinal())) {
-					JavaBot.reassignUnit(scout.getID(), ScoutManager.class.getSimpleName());
+				for(BaseLocation base : ScoutManager.bases) {
+					JavaBot.bwapi.move(scout.getID(), (JavaBot.homePositionX + base.getX())/2, (JavaBot.homePositionY + base.getY())/2);
 				}
 			}
 		}
@@ -111,20 +112,17 @@ public class ScoutSquad extends Squad {
 	protected void updateSquadPos() {
 		squadCenter.x = scout.getX();
 		squadCenter.y = scout.getY();
-		JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, DANGER_RADIUS, BWColor.RED, false, false);
-		JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, SCOUT_RADIUS, BWColor.GREEN, false, false);
+		//JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, DANGER_RADIUS, BWColor.RED, false, false);
+		//JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, SCOUT_RADIUS, BWColor.GREEN, false, false);
 	}
 	
 	public void scout() {
-		JavaBot.bwapi.printText("I get here");
 		if(status == SCOUTING || !scout.isMoving()) {
-			JavaBot.bwapi.printText("here too");
 			for(BaseLocation base : ScoutManager.bases) {
 				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;
 				else {
 					if(base.isStartLocation()) {
-						JavaBot.bwapi.printText("MAGIC?");
 						JavaBot.bwapi.move(scout.getID(), base.getX(), base.getY());
 					}
 				}
