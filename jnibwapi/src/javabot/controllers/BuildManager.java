@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import javabot.JavaBot;
+import javabot.models.Squad;
 import javabot.models.Unit;
 import javabot.models.UpgradeBuild;
 import javabot.types.UnitType;
@@ -19,6 +20,7 @@ public class BuildManager implements Manager {
 	private LinkedList<UnitTypes> buildOrder;
 	private LinkedList<UnitTypes> unitOrder;
 	private LinkedList<UpgradeBuild> upgradeOrder;
+	private Point homeBaseChokePoint;
 	public boolean workerMovingToBuild = false;
 	
 	private BuildManager() {
@@ -37,6 +39,7 @@ public class BuildManager implements Manager {
 		buildOrder = new LinkedList<UnitTypes>();
 		upgradeOrder = new LinkedList<UpgradeBuild>();
 		unitOrder = new LinkedList<UnitTypes>();
+		homeBaseChokePoint = Squad.getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
 	}
 	
 	@Override
@@ -54,25 +57,38 @@ public class BuildManager implements Manager {
 		}
 		if (!buildOrder.isEmpty() && !workerMovingToBuild) {
 			UnitTypes nextToBuild = buildOrder.element();
+			System.out.println("NEXT UNIT TO BUILD: " + nextToBuild.toString());
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 			if (worker != -1) {
-				// if we found him, try to select appropriate build tile position for building
-				Point buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+				
+				Point buildTile;
+				System.out.println("FINDING BUILD TILE FOR: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
+				if (nextToBuild.ordinal() == UnitTypes.Protoss_Photon_Cannon.ordinal()) {
+					int midPointX = (homeBaseChokePoint.x + JavaBot.homePositionX)/2;
+					int midPointY = (homeBaseChokePoint.y + JavaBot.homePositionY)/2;
+					buildTile = getBuildTile(worker, nextToBuild.ordinal(), midPointX, midPointY);
+				}
+				else {
+					buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
+				}
 				
 				//build structure if we found a good spot + aren't already building it + can afford it
 				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()) 
 				 && canAfford(JavaBot.bwapi.getUnitType(nextToBuild.ordinal())) && !workerMovingToBuild)) {
 					workerMovingToBuild = true;
 					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
-					JavaBot.bwapi.printText("ABOUT TO BUILD: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
+					System.out.println("ABOUT TO BUILD: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
 				}
 				
 				//method not called for assimilator. See unitMorph for Javabot
 				if (weAreBuilding(nextToBuild.ordinal())) {
-					if (JavaBot.initialPriorityList.size() > 0)
-						buildOrder.remove();
-					else
-						JavaBot.buildingPriorityList.remove(buildOrder.remove());
+					workerMovingToBuild = false;
+					System.out.println("WE ARE BUILDING: " + JavaBot.bwapi.getUnitType(nextToBuild.ordinal()).getName());
+					UnitTypes unit = buildOrder.remove();
+					if (JavaBot.initialPriorityList.isEmpty())
+						JavaBot.buildingPriorityList.remove(unit);
+				}
+				else {
 					workerMovingToBuild = false;
 				}
 			}
@@ -234,11 +250,12 @@ public class BuildManager implements Manager {
 	public static Point getBuildTile(int builderID, int buildingTypeID, int x, int y) {
 		Point ret = new Point(-1, -1);
 		int maxDist = 3;
-		int stopDist = 40;
+		int stopDist = 100;
 		int tileX = x/32; int tileY = y/32;
+		UnitType unitType = JavaBot.bwapi.getUnitType(buildingTypeID);
 		
 		// Refinery, Assimilator, Extractor
-		if (JavaBot.bwapi.getUnitType(buildingTypeID).isRefinery()) {
+		if (unitType.isRefinery()) {
 			for (Unit n : JavaBot.bwapi.getNeutralUnits()) {
 				if ((n.getTypeID() == UnitTypes.Resource_Vespene_Geyser.ordinal()) && 
 						( Math.abs(n.getTileX()-tileX) < stopDist ) &&
@@ -248,17 +265,19 @@ public class BuildManager implements Manager {
 		}
 		
 		while ((maxDist < stopDist) && (ret.x == -1)) {
-			for (int i=tileX-maxDist; i<=tileX+maxDist; i++) {
-				for (int j=tileY-maxDist; j<=tileY+maxDist; j++) {
+			for (int i=Math.abs(tileX-maxDist); i<=tileX+maxDist; i++) {
+				for (int j=Math.abs(tileY-maxDist); j<=tileY+maxDist; j++) {
 					if (JavaBot.bwapi.canBuildHere(builderID, i, j, buildingTypeID, false)) {
 						// units that are blocking the tile
 						boolean unitsInWay = false;
 						for (Unit u : JavaBot.bwapi.getAllUnits()) {
 							if (u.getID() == builderID) continue;
-							if ((Math.abs(u.getTileX()-i) < 4) && (Math.abs(u.getTileY()-j) < 4)) unitsInWay = true;
+							if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
+								unitsInWay = true;
 						}
 						if (!unitsInWay) {
 							ret.x = i; ret.y = j;
+							System.out.println("Found a suitable build location for: " + unitType.getName());
 							return ret;
 						}
 						

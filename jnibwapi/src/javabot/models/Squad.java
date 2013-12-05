@@ -182,7 +182,7 @@ public class Squad {
 	 * @param units
 	 * @return
 	 */
-	protected Point getCenter(ArrayList<Unit> units) {
+	public static Point getCenter(ArrayList<Unit> units) {
 		int x = 0, y = 0;
 		
 		if(units.size() >= 1) {
@@ -202,7 +202,7 @@ public class Squad {
 	 * @param p2 second point
 	 * @return distance between the points
 	 */
-	protected double getDistance(Point p1, Point p2) {
+	public static double getDistance(Point p1, Point p2) {
 		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) + (p1.getY()-p2.getY())*(p1.getY()-p2.getY())); 
 	}
 	
@@ -213,11 +213,11 @@ public class Squad {
 	 * @param radius radius of circle
 	 * @return true if distance between p1 and p2 is within circle
 	 */
-	protected boolean inRange(Point p1, Point p2, int radius) {
+	public static boolean inRange(Point p1, Point p2, int radius) {
 		return getDistance(p1, p2) <= radius;
 	}
 	
-	protected Point getClosestChokePoint(Point p1) {
+	public static Point getClosestChokePoint(Point p1) {
 		Point closestChokePoint = new Point(JavaBot.homePositionX, JavaBot.homePositionY);
 		double distance = Double.MAX_VALUE;
 		
