@@ -495,6 +495,7 @@ public class JavaBot implements BWAPIEventListener {
 		stopProbeNum = 0;
 		startProbeNum = 0;
 	}
+	
 	private void strategyZealotRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
@@ -508,6 +509,13 @@ public class JavaBot implements BWAPIEventListener {
 		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
 
 
+		
+		stopProbeNum = 0;
+		startProbeNum = 0;
+	}
+	
+	private void testStrategySecondBaseTest() {
+		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
 		
 		stopProbeNum = 0;
 		startProbeNum = 0;
