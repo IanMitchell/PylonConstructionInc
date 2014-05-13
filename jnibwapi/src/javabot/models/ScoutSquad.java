@@ -1,12 +1,13 @@
 package javabot.models;
 
 import java.awt.Point;
+
 import javabot.JavaBot;
 import javabot.controllers.ArmyManager;
 import javabot.controllers.ScoutManager;
 import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
-import javabot.util.BWColor;
+import javabot.util.*;
 
 public class ScoutSquad extends Squad {
 	public Unit scout;
@@ -91,9 +92,9 @@ public class ScoutSquad extends Squad {
 					weakestWorker = enemy;
 					return ATTACKING;
 				}
-				else if (weakestWorker != null && !isStronger(enemy) && inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS))
+				else if (weakestWorker != null && !isStronger(enemy) && Utils.inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS))
 					weakestWorker = enemy;
-				else if(inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS) && ++attackingWorkers > 1)
+				else if(Utils.inRange(squadCenter, new Point(enemy.getX(), enemy.getY()), DANGER_RADIUS) && ++attackingWorkers > 1)
 					return DANGER;
 			}
 			else if (!type.isAttackCapable()) 
@@ -119,7 +120,7 @@ public class ScoutSquad extends Squad {
 	public void scout() {
 		if(status == SCOUTING || !scout.isMoving()) {
 			for(BaseLocation base : ScoutManager.bases) {
-				if (inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
+				if (Utils.inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
 					continue;
 				else {
 					if(base.isStartLocation()) {

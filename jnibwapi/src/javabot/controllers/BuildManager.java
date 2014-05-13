@@ -13,7 +13,7 @@ import javabot.models.UpgradeBuild;
 import javabot.types.UnitType;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType;
-import javabot.util.BWColor;
+import javabot.util.*;
 
 public class BuildManager implements Manager {
 	private static BuildManager instance = null;
@@ -44,7 +44,7 @@ public class BuildManager implements Manager {
 		buildOrder = new LinkedList<UnitTypes>();
 		upgradeOrder = new LinkedList<UpgradeBuild>();
 		unitOrder = new LinkedList<UnitTypes>();
-		homeBaseChokePoint = Squad.getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
+		homeBaseChokePoint = Utils.getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
 		buildFrameCount = 0;
 		workerMovingToBuild = false;
 		buildingNexus = false;
@@ -279,17 +279,19 @@ public class BuildManager implements Manager {
 					if (JavaBot.bwapi.canBuildHere(builderID, i, j, buildingTypeID, false)) {
 						// units that are blocking the tile
 						boolean unitsInWay = false;
+						
 						for (Unit u : JavaBot.bwapi.getAllUnits()) {
 							if (u.getID() == builderID) 
 								continue;
 							else if (buildingTypeID == UnitTypes.Protoss_Stargate.ordinal() && (Math.abs(u.getTileX()-i) < unitType.getTileWidth()) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()))
 								unitsInWay = true;
-							else if (buildingTypeID == UnitTypes.Protoss_Probe.ordinal() && u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && ScoutSquad.inRange(new Point(u.getX(), u.getY()), new Point(i,j), 220))
+							else if (buildingTypeID == UnitTypes.Protoss_Probe.ordinal() && u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && Utils.inRange(new Point(u.getX(), u.getY()), new Point(i,j), 220))
 								unitsInWay = true;
 							else if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
 							//else if ((Math.abs(u.getTileX()-i) < 3) && (Math.abs(u.getTileY()-j) < 3))
 								unitsInWay = true;
 						}
+						
 						if (!unitsInWay) {
 							ret.x = i; ret.y = j;
 							return ret;
