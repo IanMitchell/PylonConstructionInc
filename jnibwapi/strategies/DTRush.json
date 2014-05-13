@@ -1,0 +1,64 @@
+{
+	"initialPriorityList" : [
+		{
+			"time" : "8",
+			"name" : "Protoss_Pylon"
+		}, {
+			"time" : "9",
+			"name" : "Protoss_Gateway"
+		}, {
+			"time" : "10",
+			"name" : "Protoss_Assimilator"
+		}, {
+			"time" : "13",
+			"name" : "Protoss_Cybernetics_Core"
+		}, {
+			"time" : "15",
+			"name" : "Protoss_Forge"
+		}, {
+			"time" : "16",
+			"name" : "Protoss_Pylon"
+		}, {
+			"time" : "17",
+			"name" : "Protoss_Dragoon"
+		}, {
+			"time" : "18",
+			"name" : "Protoss_Citadel_of_Adun"
+		}, {
+			"time" : "18",
+			"name" : "Protoss_Gateway"
+		}, {
+			"time" : "18",
+			"name" : "Protoss_Photon_Cannon"
+		}, {
+			"time" : "21",
+			"name" : "Protoss_Pylon"
+		}, {
+			"time" : "21",
+			"name" : "Protoss_Photon_Cannon"
+		}, {
+			"time" : "22",
+			"name" : "Protoss_Templar_Archives"
+		}
+	],
+	
+	"unitPriorityList" : [
+		{
+			"name" : "Protoss_Dark_Templar"
+		}, {
+			"name" : "Protoss_Dragoon"
+		}, {
+			"name" : "Protoss_Zealot"
+		}
+	],
+			
+	"buildingPriorityList" : [
+		{
+			"name" : "Protoss_Photon_Cannon"
+		}, {
+			"name" : "Protoss_Gateway"
+		}, {
+			"name" : "Protoss_Gateway"
+		}
+	]
+}

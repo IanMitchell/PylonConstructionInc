@@ -1,6 +1,8 @@
 package javabot;
 
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import javabot.controllers.ArmyManager;
@@ -15,6 +17,11 @@ import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType.UpgradeTypes;
 import javabot.util.BWColor;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JavaBot implements BWAPIEventListener {
 	 public static JNIBWAPI bwapi;
@@ -59,9 +66,10 @@ public class JavaBot implements BWAPIEventListener {
 	private void reset() {
 		player = bwapi.getSelf();
 		possibleStrats = new ArrayList<String>();
-		possibleStrats.add("Goon Rush");
+		possibleStrats.add("DTRush");
+		/*possibleStrats.add("Goon Rush");
 		possibleStrats.add("Carrier Rush");
-		possibleStrats.add("DT Rush");
+		possibleStrats.add("DT Rush");*/
 		managers = new HashMap<String, Manager>();
 		buildingRequests = new HashSet<Integer>();
 		armyRequests = new HashSet<Integer>();
@@ -76,7 +84,16 @@ public class JavaBot implements BWAPIEventListener {
 		Random rand = new Random();
 		//TODO: Hello
 		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
-		if (currentStrat.equals("Goon Rush")) {
+		
+		try {
+			loadStrategy(currentStrat);
+			JavaBot.bwapi.printText(" ==== Running Strategy: " + currentStrat + " ==== ");
+		} catch (Exception e) {
+			JavaBot.bwapi.printText("I broke");
+			e.printStackTrace();
+		}
+		
+		/*if (currentStrat.equals("Goon Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: Goon Rush ==== ");
 			strategyGoonRush();
 		}
@@ -90,7 +107,7 @@ public class JavaBot implements BWAPIEventListener {
 		}
 		else {
 			JavaBot.bwapi.printText("I broke");
-		}
+		}*/
 		
 	}
 	
@@ -415,6 +432,26 @@ public class JavaBot implements BWAPIEventListener {
 	public void keyPressed(int keyCode) {}
 	
 	//ALL STRATEGIES
+	private void loadStrategy(String strategy) throws JsonProcessingException, IOException {
+		ObjectMapper m = new ObjectMapper();
+		JsonNode rootNode = m.readTree(new File("strategies", strategy + ".json"));
+		
+		for (JsonNode element : rootNode.path("initialPriorityList")) {
+			ObjectNode priority = (ObjectNode)element;
+			initialPriorityList.add(new BuildTime(priority.path("time").intValue(), UnitTypes.valueOf(priority.path("name").textValue())));
+		}
+		
+		for (JsonNode element : rootNode.path("unitPriorityList")) {
+			ObjectNode priority = (ObjectNode)element;
+			unitPriorityList.add(UnitTypes.valueOf(priority.path("name").textValue()));
+		}
+		
+		for (JsonNode element : rootNode.path("buildingPriorityList")) {
+			ObjectNode priority = (ObjectNode)element;
+			buildingPriorityList.add(UnitTypes.valueOf(priority.path("name").textValue()));
+		}
+	}
+	
 	private void strategyGoonRush() {
 		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
 		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
