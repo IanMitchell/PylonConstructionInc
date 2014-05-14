@@ -1,8 +1,6 @@
 package javabot;
 
 import java.awt.Point;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 import javabot.controllers.ArmyManager;
@@ -17,11 +15,7 @@ import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType.UpgradeTypes;
 import javabot.util.BWColor;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import javabot.Strategy;
 
 public class JavaBot implements BWAPIEventListener {
 	 public static JNIBWAPI bwapi;
@@ -46,7 +40,8 @@ public class JavaBot implements BWAPIEventListener {
 	
 	private static boolean alreadyGaveScout = false;
 	
-	private static ArrayList<String> possibleStrats = new ArrayList<String>();
+//	private static ArrayList<String> possibleStrats = new ArrayList<String>();
+	Strategy strat = new Strategy();
 	
 	private static String currentStrat = null;
 	
@@ -65,8 +60,9 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	private void reset() {
 		player = bwapi.getSelf();
-		possibleStrats = new ArrayList<String>();
-		possibleStrats.add("DTRush");
+//		possibleStrats = new ArrayList<String>();
+//		possibleStrats.add("DTRush");
+		strat.addStrategy("DTRush");
 		/*possibleStrats.add("Goon Rush");
 		possibleStrats.add("Carrier Rush");
 		possibleStrats.add("DT Rush");*/
@@ -81,10 +77,17 @@ public class JavaBot implements BWAPIEventListener {
 		alreadyGaveScout = false;
 		
 		//Choose Strategy for the game
-		Random rand = new Random();
+//		Random rand = new Random();
 		//TODO: Hello
-		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
+//		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
+		strat.pickStrategy("random");
 		
+		initialPriorityList = strat.getInitialList();
+		unitPriorityList = strat.getUnitList();
+		buildingPriorityList =strat.getBuildingList();
+		upgradePriorityList = strat.getUpgradeList();
+
+		/*		
 		try {
 			loadStrategy(currentStrat);
 			JavaBot.bwapi.printText(" ==== Running Strategy: " + currentStrat + " ==== ");
@@ -92,7 +95,7 @@ public class JavaBot implements BWAPIEventListener {
 			JavaBot.bwapi.printText("I broke");
 			e.printStackTrace();
 		}
-		
+*/		
 		/*if (currentStrat.equals("Goon Rush")) {
 			JavaBot.bwapi.printText(" ==== Running Strategy: Goon Rush ==== ");
 			strategyGoonRush();
@@ -432,7 +435,7 @@ public class JavaBot implements BWAPIEventListener {
 	public void keyPressed(int keyCode) {}
 	
 	//ALL STRATEGIES
-	private void loadStrategy(String strategy) throws JsonProcessingException, IOException {
+/*	private void loadStrategy(String strategy) throws JsonProcessingException, IOException {
 		ObjectMapper m = new ObjectMapper();
 		JsonNode rootNode = m.readTree(new File("strategies", strategy + ".json"));
 		
@@ -557,6 +560,6 @@ public class JavaBot implements BWAPIEventListener {
 		stopProbeNum = 0;
 		startProbeNum = 0;
 	}
-	
+*/	
 }
 
