@@ -117,6 +117,13 @@ public class Strategy {
 				buildingPriorityList.add(UnitTypes.valueOf(priority.path("name").textValue()));
 			}
 		}
+		
+		for (JsonNode element : rootNode.path("upgradePriorityList")) {
+			ObjectNode priority = (ObjectNode)element;
+			
+			upgradePriorityList.add(new UpgradeBuild(UpgradeTypes.valueOf(priority.path("name").textValue()),
+					UnitTypes.valueOf(priority.path("building").textValue())));
+		}
 	}
 	
 	private void printStrategy()
@@ -138,6 +145,11 @@ public class Strategy {
 		System.out.println("\tbuildingPriorityList:");
 		for (UnitTypes ut : buildingPriorityList) {
 			System.out.printf("%s\n", ut);
+		}
+
+		System.out.println("\tupgradePriorityList:");
+		for (UpgradeBuild ub : upgradePriorityList) {
+			System.out.printf("%s @ %s\n", ub.getUpgrade(), ub.getBuilding());
 		}
 	}
 
