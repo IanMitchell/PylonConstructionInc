@@ -37,9 +37,9 @@ public class Strategy {
 		possibleStrats = new ArrayList<String>();
 		
 		possibleStrats.add("DTRush");
-		/*possibleStrats.add("GoonRush");
-		possibleStrats.add("CarrierRush");
-		possibleStrats.add("ZealotRush");*/
+		possibleStrats.add("GoonRush");
+		//possibleStrats.add("CarrierRush");
+		possibleStrats.add("ZealotRush");
 	}
 	
 	public Deque<BuildTime> getInitialList() {

@@ -1,0 +1,28 @@
+{
+	"initialPriorityList" :
+	[
+		{
+			"supplyNum" : "8",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "9",
+			"name" : "Protoss_Gateway"
+		}
+	],
+
+	"unitPriorityList" :
+	[
+		{
+			"name" : "Protoss_Zealot"
+		}
+	],
+
+	"buildingPriorityList" :
+	[
+		{
+			"name" : "Protoss_Gateway",
+			"count" : "5"
+		}
+	]
+}

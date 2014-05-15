@@ -1,0 +1,78 @@
+{
+	"initialPriorityList" :
+	[
+		{
+			"supplyNum" : "8",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "9",
+			"name" : "Protoss_Gateway"
+		},
+		{
+			"supplyNum" : "10",
+			"name" : "Protoss_Assimilator"
+		},
+		{
+			"supplyNum" : "13",
+			"name" : "Protoss_Cybernetics_Core"
+		},
+		{
+			"supplyNum" : "14",
+			"name" : "Protoss_Gateway"
+		},
+		{
+			"supplyNum" : "15",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "17",
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"supplyNum" : "17",
+			"type" : "upgrade",
+			"name" : "Singularity_Charge",
+			"building" : "Protoss_Cybernetics_Core"
+		},
+		{
+			"supplyNum" : "17",
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"supplyNum" : "17",
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"supplyNum" : "21",
+			"name" : "Protoss_Pylon"
+		}
+	],
+
+	"unitPriorityList" :
+	[
+		{
+			"name" : "Protoss_Dark_Templar"
+		},
+		{
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"name" : "Protoss_Zealot"
+		}
+	],
+
+	"buildingPriorityList" :
+	[
+		{
+			"name" : "Protoss_Citadel_of_Adun"
+		},
+		{
+			"name" : "Protoss_Templar_Archives"
+		},
+		{
+			"name" : "Protoss_Gateway",
+			"count" : "2"
+		}
+	]
+}
