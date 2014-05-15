@@ -35,6 +35,11 @@ public class Strategy {
 		buildingPriorityList = new ArrayDeque<UnitTypes>();
 		upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 		possibleStrats = new ArrayList<String>();
+		
+		possibleStrats.add("DTRush");
+		/*possibleStrats.add("GoonRush");
+		possibleStrats.add("CarrierRush");
+		possibleStrats.add("ZealotRush");*/
 	}
 	
 	public Deque<BuildTime> getInitialList() {
@@ -51,11 +56,6 @@ public class Strategy {
 	
 	public Deque<UpgradeBuild> getUpgradeList() {
 		return this.upgradePriorityList;
-	}
-	
-	// maybe hardcode strategies into list?
-	public void addStrategy(String name) {
-		possibleStrats.add(name);
 	}
 		
 	public void pickStrategy(String name) {

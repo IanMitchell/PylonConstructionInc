@@ -13,7 +13,6 @@ import javabot.controllers.UnitManager;
 import javabot.models.*;
 import javabot.types.*;
 import javabot.types.UnitType.UnitTypes;
-import javabot.types.UpgradeType.UpgradeTypes;
 import javabot.util.BWColor;
 import javabot.Strategy;
 
@@ -40,10 +39,7 @@ public class JavaBot implements BWAPIEventListener {
 	
 	private static boolean alreadyGaveScout = false;
 	
-//	private static ArrayList<String> possibleStrats = new ArrayList<String>();
 	Strategy strat = new Strategy();
-	
-	private static String currentStrat = null;
 	
 	private static int stopProbeNum = 0;
 	private static int startProbeNum = 0;
@@ -60,12 +56,6 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	private void reset() {
 		player = bwapi.getSelf();
-//		possibleStrats = new ArrayList<String>();
-//		possibleStrats.add("DTRush");
-		strat.addStrategy("DTRush");
-		/*possibleStrats.add("Goon Rush");
-		possibleStrats.add("Carrier Rush");
-		possibleStrats.add("DT Rush");*/
 		managers = new HashMap<String, Manager>();
 		buildingRequests = new HashSet<Integer>();
 		armyRequests = new HashSet<Integer>();
@@ -77,41 +67,12 @@ public class JavaBot implements BWAPIEventListener {
 		alreadyGaveScout = false;
 		
 		//Choose Strategy for the game
-//		Random rand = new Random();
-		//TODO: Hello
-//		currentStrat = possibleStrats.get(rand.nextInt(possibleStrats.size()));
 		strat.pickStrategy("random");
 		
 		initialPriorityList = strat.getInitialList();
 		unitPriorityList = strat.getUnitList();
 		buildingPriorityList =strat.getBuildingList();
 		upgradePriorityList = strat.getUpgradeList();
-
-		/*		
-		try {
-			loadStrategy(currentStrat);
-			JavaBot.bwapi.printText(" ==== Running Strategy: " + currentStrat + " ==== ");
-		} catch (Exception e) {
-			JavaBot.bwapi.printText("I broke");
-			e.printStackTrace();
-		}
-*/		
-		/*if (currentStrat.equals("Goon Rush")) {
-			JavaBot.bwapi.printText(" ==== Running Strategy: Goon Rush ==== ");
-			strategyGoonRush();
-		}
-		else if (currentStrat.equals("DT Rush")) {
-			JavaBot.bwapi.printText(" ==== Running Strategy: DT Rush ==== ");
-			strategyDTRush();
-		}
-		else if (currentStrat.equals("Carrier Rush")) {
-			JavaBot.bwapi.printText(" ==== Running Strategy: Carrier Rush ==== ");
-			strategyCarrierRush();
-		}
-		else {
-			JavaBot.bwapi.printText("I broke");
-		}*/
-		
 	}
 	
 	// Method called at the beginning of the game.
@@ -433,133 +394,5 @@ public class JavaBot implements BWAPIEventListener {
 	public void unitHide(int unitID) {}
 	public void unitShow(int unitID) {}
 	public void keyPressed(int keyCode) {}
-	
-	//ALL STRATEGIES
-/*	private void loadStrategy(String strategy) throws JsonProcessingException, IOException {
-		ObjectMapper m = new ObjectMapper();
-		JsonNode rootNode = m.readTree(new File("strategies", strategy + ".json"));
-		
-		for (JsonNode element : rootNode.path("initialPriorityList")) {
-			ObjectNode priority = (ObjectNode)element;
-			initialPriorityList.add(new BuildTime(priority.path("time").intValue(), UnitTypes.valueOf(priority.path("name").textValue())));
-		}
-		
-		for (JsonNode element : rootNode.path("unitPriorityList")) {
-			ObjectNode priority = (ObjectNode)element;
-			unitPriorityList.add(UnitTypes.valueOf(priority.path("name").textValue()));
-		}
-		
-		for (JsonNode element : rootNode.path("buildingPriorityList")) {
-			ObjectNode priority = (ObjectNode)element;
-			buildingPriorityList.add(UnitTypes.valueOf(priority.path("name").textValue()));
-		}
-	}
-	
-	private void strategyGoonRush() {
-		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
-		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
-		initialPriorityList.add(new BuildTime(14, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(17, new UpgradeBuild(UpgradeTypes.Singularity_Charge, UnitTypes.Protoss_Cybernetics_Core)));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
-		
-		unitPriorityList.add(UnitTypes.Protoss_Dark_Templar);
-		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
-		unitPriorityList.add(UnitTypes.Protoss_Zealot);
-		
-		buildingPriorityList.add(UnitTypes.Protoss_Citadel_of_Adun);
-		buildingPriorityList.add(UnitTypes.Protoss_Templar_Archives);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		
-		stopProbeNum = 0;
-		startProbeNum = 0;
-	}
-	private void strategyDTRush() {
-		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
-		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
-		initialPriorityList.add(new BuildTime(15, UnitTypes.Protoss_Forge));
-		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Citadel_of_Adun));
-		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(18, UnitTypes.Protoss_Photon_Cannon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Photon_Cannon));
-		initialPriorityList.add(new BuildTime(22, UnitTypes.Protoss_Templar_Archives));
-		
-		unitPriorityList.add(UnitTypes.Protoss_Dark_Templar);
-		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
-		unitPriorityList.add(UnitTypes.Protoss_Zealot);
-				
-		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-
-		stopProbeNum = 0;
-		startProbeNum = 0;
-	}
-	private void strategyCarrierRush() {
-		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(10, UnitTypes.Protoss_Assimilator));
-		initialPriorityList.add(new BuildTime(13, UnitTypes.Protoss_Cybernetics_Core));
-		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(16, UnitTypes.Protoss_Forge));
-		initialPriorityList.add(new BuildTime(17, UnitTypes.Protoss_Dragoon));
-		initialPriorityList.add(new BuildTime(20, UnitTypes.Protoss_Photon_Cannon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(21, UnitTypes.Protoss_Gateway));
-		initialPriorityList.add(new BuildTime(22, UnitTypes.Protoss_Photon_Cannon));
-		
-		unitPriorityList.add(UnitTypes.Protoss_Carrier);
-		unitPriorityList.add(UnitTypes.Protoss_Dragoon);
-		unitPriorityList.add(UnitTypes.Protoss_Zealot);
-		
-		buildingPriorityList.add(UnitTypes.Protoss_Stargate);
-		buildingPriorityList.add(UnitTypes.Protoss_Fleet_Beacon);
-		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Stargate);
-		buildingPriorityList.add(UnitTypes.Protoss_Photon_Cannon);
-		upgradePriorityList.add(new UpgradeBuild(UpgradeTypes.Carrier_Capacity, UnitTypes.Protoss_Fleet_Beacon));
-
-		
-		stopProbeNum = 0;
-		startProbeNum = 0;
-	}
-	
-	private void strategyZealotRush() {
-		initialPriorityList.add(new BuildTime(8, UnitTypes.Protoss_Pylon));
-		initialPriorityList.add(new BuildTime(9, UnitTypes.Protoss_Gateway));
-		
-		unitPriorityList.add(UnitTypes.Protoss_Zealot);
-		
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-		buildingPriorityList.add(UnitTypes.Protoss_Gateway);
-
-
-		
-		stopProbeNum = 0;
-		startProbeNum = 0;
-	}
-	
-	private void testStrategySecondBaseTest() {
-		buildingPriorityList.add(UnitTypes.Protoss_Nexus);
-		
-		stopProbeNum = 0;
-		startProbeNum = 0;
-	}
-*/	
 }
 
