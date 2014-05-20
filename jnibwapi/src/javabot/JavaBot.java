@@ -382,6 +382,22 @@ public class JavaBot implements BWAPIEventListener {
 			BuildManager.getInstance().assignUnit(unit);
 	}
 	
+	public static void urgentInitial(BuildTime init) {
+		initialPriorityList.addFirst(init);
+	}
+	
+	public static void urgentUnit(UnitTypes unit) {
+		unitPriorityList.add(0, unit);
+	}
+	
+	public static void urgentBuilding(UnitTypes building) {
+		buildingPriorityList.addFirst(building);
+	}
+	
+	public static void urgentUpgrade(UpgradeBuild upgrade) {
+		upgradePriorityList.addFirst(upgrade);
+	}
+
 	// Some additional event-related methods.
 	public void gameEnded() {}
 	public void matchEnded(boolean winner) {}
