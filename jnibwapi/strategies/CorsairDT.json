@@ -1,0 +1,80 @@
+{
+	"initialPriorityList" :
+	[
+		{
+			"supplyNum" : "8",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "10",
+			"name" : "Protoss_Gateway"
+		},
+		{
+			"supplyNum" : "12",
+			"name" : "Protoss_Assimilator"
+		},
+		{
+			"supplyNum" : "13",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "13",
+			"name" : "Protoss_Cybernetics_Core"
+		},
+		{
+			"supplyNum" : "16",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "17",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "18",
+			"name" : "Protoss_Stargate"
+		},
+		{
+			"supplyNum" : "18",
+			"name" : "Protoss_Citadel_of_Adun"
+		},
+		{
+			"supplyNum" : "21",
+			"name" : "Protoss_Corsair"
+		},
+		{
+			"supplyNum" : "22",
+			"name" : "Protoss_Templar_Archives"
+		},
+		{
+			"supplyNum" : "23",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "24",
+			"name" : "Protoss_Dark_Templar"
+		}
+	],
+	
+	"unitPriorityList" :
+	[
+		{
+			"name" : "Protoss_Dark_Templar"
+		},
+		{
+			"name" : "Protoss_Corsair"
+		}
+	],
+			
+	"buildingPriorityList" :
+	[
+		{
+			"name" : "Protoss_Photon_Cannon"
+		},
+		{
+			"name" : "Protoss_Stargate"
+		},
+		{
+			"name" : "Protoss_Gateway"
+		}
+	]
+}

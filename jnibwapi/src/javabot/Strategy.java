@@ -40,6 +40,8 @@ public class Strategy {
 		possibleStrats.add("GoonRush");
 		//possibleStrats.add("CarrierRush");
 		possibleStrats.add("ZealotRush");
+		//possibleStrats.add("CorsairDT");
+		//possibleStrats.add("GoonOnlyRush");
 	}
 	
 	public Deque<BuildTime> getInitialList() {
@@ -70,6 +72,10 @@ public class Strategy {
 		}
 		
 		try {
+			initialPriorityList = new ArrayDeque<BuildTime>();
+			unitPriorityList = new LinkedList<UnitTypes>();
+			buildingPriorityList = new ArrayDeque<UnitTypes>();
+			upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 			loadStrategy(strategy);
 			JavaBot.bwapi.printText(" ==== Running Strategy: " + strategy + " ==== ");
 		} catch (Exception e) {
