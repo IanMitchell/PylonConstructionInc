@@ -67,7 +67,7 @@ public class JavaBot implements BWAPIEventListener {
 		alreadyGaveScout = false;
 		
 		//Choose Strategy for the game
-		strat.pickStrategy("random");
+		strat.loadStrategy(bwapi.getEnemies().get(0).getRaceID());
 		
 		initialPriorityList = strat.getInitialList();
 		unitPriorityList = strat.getUnitList();

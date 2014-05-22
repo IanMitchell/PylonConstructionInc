@@ -1,0 +1,117 @@
+{
+	"initialPriorityList" :
+	[
+		{
+			"supplyNum" : "8",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "10",
+			"name" : "Protoss_Gateway"
+		},
+		{
+			"supplyNum" : "12",
+			"name" : "Protoss_Assimilator"
+		},
+		{
+			"supplyNum" : "13",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "16",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "17",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "20",
+			"name" : "Protoss_Cybernetics_Core"
+		},
+		{
+			"supplyNum" : "21",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "23",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "25",
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"supplyNum" : "27",
+			"name" : "Protoss_Citadel_of_Adun"
+		},
+		{
+			"supplyNum" : "29",
+			"name" : "Protoss_Gateway"
+		},
+		{
+			"supplyNum" : "29",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "31",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "31",
+			"type" : "upgrade",
+			"name" : "Leg_Enhancements",
+			"building" : "Protoss_Citadel_of_Adun"
+		},
+		{
+			"supplyNum" : "31",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "31",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "37",
+			"name" : "Protoss_Pylon"
+		},
+		{
+			"supplyNum" : "37",
+			"name" : "Protoss_Templar_Archives"
+		},
+		{
+			"supplyNum" : "37",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "37",
+			"name" : "Protoss_Zealot"
+		},
+		{
+			"supplyNum" : "40",
+			"name" : "Protoss_High_Templar"
+		},
+		{
+			"supplyNum" : "40",
+			"name" : "Protoss_High_Templar"
+		}
+	],
+
+	"unitPriorityList" :
+	[
+		{
+			"name" : "Protoss_Dragoon"
+		},
+		{
+			"name" : "Protoss_Zealot"
+		}
+	],
+
+	"buildingPriorityList" :
+	[
+		{
+			"name" : "Protoss_Gateway",
+			"count" : "2"
+		}
+	]
+}

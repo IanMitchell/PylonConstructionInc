@@ -52,6 +52,9 @@
 	"unitPriorityList" :
 	[
 		{
+			"name" : "Protoss_Dark_Templar"
+		},
+		{
 			"name" : "Protoss_Dragoon"
 		},
 		{
@@ -61,6 +64,12 @@
 
 	"buildingPriorityList" :
 	[
+		{
+			"name" : "Protoss_Citadel_of_Adun"
+		},
+		{
+			"name" : "Protoss_Templar_Archives"
+		},
 		{
 			"name" : "Protoss_Gateway",
 			"count" : "2"

@@ -62,6 +62,9 @@
 		},
 		{
 			"name" : "Protoss_Corsair"
+		},
+		{
+			"name" : "Protoss_Zealot"
 		}
 	],
 			
@@ -71,10 +74,10 @@
 			"name" : "Protoss_Photon_Cannon"
 		},
 		{
-			"name" : "Protoss_Stargate"
+			"name" : "Protoss_Gateway"
 		},
 		{
-			"name" : "Protoss_Gateway"
+			"name" : "Protoss_Stargate"
 		}
 	]
 }

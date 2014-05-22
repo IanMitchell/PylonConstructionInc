@@ -28,6 +28,7 @@ public class Strategy {
 	private  Deque<UnitTypes> buildingPriorityList;
 	private  Deque<UpgradeBuild> upgradePriorityList;
 	private  ArrayList<String> possibleStrats;
+	private  String strategy;
 	
 	public Strategy() {
 		initialPriorityList = new ArrayDeque<BuildTime>();
@@ -35,13 +36,7 @@ public class Strategy {
 		buildingPriorityList = new ArrayDeque<UnitTypes>();
 		upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 		possibleStrats = new ArrayList<String>();
-		
-		possibleStrats.add("DTRush");
-		possibleStrats.add("GoonRush");
-		//possibleStrats.add("CarrierRush");
-		possibleStrats.add("ZealotRush");
-		//possibleStrats.add("CorsairDT");
-		//possibleStrats.add("GoonOnlyRush");
+		strategy = null;
 	}
 	
 	public Deque<BuildTime> getInitialList() {
@@ -59,23 +54,47 @@ public class Strategy {
 	public Deque<UpgradeBuild> getUpgradeList() {
 		return this.upgradePriorityList;
 	}
-		
-	public void pickStrategy(String name) {
-		String strategy;
-		
-		if(possibleStrats.contains(name)) {
-			strategy = name;
+	
+	public void loadSelection(int enemyRaceID) {
+		try {
+			ObjectMapper m = new ObjectMapper();
+			JsonNode rootNode = m.readTree(new File("strategies", "StrategySelection.json"));
+			String enemyRace;
+			
+			switch (enemyRaceID) {
+			case 0:
+				enemyRace = "Zerg";
+				break;
+			case 1:
+				enemyRace = "Terran";
+				break;
+			case 2:
+				enemyRace = "Protoss";
+				break;
+			default:
+				enemyRace = "Random";
+			}
+			
+			System.out.println("Enemy: " + enemyRace);
+			
+			possibleStrats = new ArrayList<String>();
+			for (JsonNode element : rootNode.path(enemyRace)) {
+				possibleStrats.add(element.textValue());
+			}
+		} catch (Exception e) {
+			JavaBot.bwapi.printText("I broke");
+			e.printStackTrace();
 		}
-		else {
-			Random rand = new Random();
-			strategy = possibleStrats.get(rand.nextInt(possibleStrats.size()));
-		}
+	}
+	
+	public void loadStrategy(int enemyRaceID) {
+		Random rand = new Random();
+		
+		loadSelection(enemyRaceID);
+		
+		strategy = possibleStrats.get(rand.nextInt(possibleStrats.size()));
 		
 		try {
-			initialPriorityList = new ArrayDeque<BuildTime>();
-			unitPriorityList = new LinkedList<UnitTypes>();
-			buildingPriorityList = new ArrayDeque<UnitTypes>();
-			upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 			loadStrategy(strategy);
 			JavaBot.bwapi.printText(" ==== Running Strategy: " + strategy + " ==== ");
 		} catch (Exception e) {
@@ -89,6 +108,11 @@ public class Strategy {
 	public void loadStrategy(String strategy) throws JsonProcessingException, IOException {
 		ObjectMapper m = new ObjectMapper();
 		JsonNode rootNode = m.readTree(new File("strategies", strategy + ".json"));
+		
+		initialPriorityList = new ArrayDeque<BuildTime>();
+		unitPriorityList = new LinkedList<UnitTypes>();
+		buildingPriorityList = new ArrayDeque<UnitTypes>();
+		upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 		
 		for (JsonNode element : rootNode.path("initialPriorityList")) {
 			ObjectNode priority = (ObjectNode)element;
@@ -134,6 +158,7 @@ public class Strategy {
 	
 	private void printStrategy()
 	{
+		System.out.println("\t\t" + strategy);
 		System.out.println("\tinitialPriorityList:");
 		for (BuildTime bt : initialPriorityList) {
 			if (bt.getUnit() != null) {

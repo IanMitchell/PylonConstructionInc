@@ -1,0 +1,21 @@
+{
+	"Terran" :
+	[
+		"DTRush",
+		"GoonDTRush",
+		"ZealotRush"
+	],
+	"Zerg" :
+	[
+		"CorsairDT",
+		"SpeedZealot"
+	],
+	"Protoss" :
+	[
+		"GoonRush"
+	],
+	"Random" :
+	[
+		"DTRush"
+	]
+}
