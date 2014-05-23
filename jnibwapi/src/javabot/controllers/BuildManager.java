@@ -2,12 +2,10 @@ package javabot.controllers;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 import javabot.JavaBot;
-import javabot.models.BaseLocation;
-import javabot.models.ScoutSquad;
-import javabot.models.Squad;
 import javabot.models.Unit;
 import javabot.models.UpgradeBuild;
 import javabot.types.UnitType;
@@ -19,7 +17,7 @@ public class BuildManager implements Manager {
 	private static BuildManager instance = null;
 	
 	private ArrayList<Integer> buildingsBeingConstructed;
-	private ArrayList<Integer> buildings;
+	private static ArrayList<Integer> buildings;
 	private LinkedList<UnitTypes> buildOrder;
 	private LinkedList<UnitTypes> unitOrder;
 	private LinkedList<UpgradeBuild> upgradeOrder;
@@ -67,22 +65,14 @@ public class BuildManager implements Manager {
 			UnitTypes nextToBuild = buildOrder.element();
 			int worker = getNearestUnit(UnitTypes.Protoss_Probe.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
 			if (worker != -1) {
-				
-				Point buildTile = new Point(-1,-1);
-				if (nextToBuild.ordinal() == UnitTypes.Protoss_Photon_Cannon.ordinal()) {
-					int midPointX = (homeBaseChokePoint.x + JavaBot.homePositionX)/2;
-					int midPointY = (homeBaseChokePoint.y + JavaBot.homePositionY)/2;
-					buildTile = getBuildTile(worker, nextToBuild.ordinal(), midPointX, midPointY);
-				}
-				else {
-					buildTile = getBuildTile(worker, nextToBuild.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY);
-				}
+				Point buildTile = getBuildingLocation(worker, nextToBuild);
 				
 				//build structure if we found a good spot + aren't already building it + can afford it
-				if ((buildTile.x != -1) && (!weAreBuilding(nextToBuild.ordinal()) 
-				 && canAfford(JavaBot.bwapi.getUnitType(nextToBuild.ordinal())) && !workerMovingToBuild)) {
+				if (!weAreBuilding(nextToBuild.ordinal()) 
+				 && canAfford(JavaBot.bwapi.getUnitType(nextToBuild.ordinal())) && !workerMovingToBuild) {
 					buildFrameCount = JavaBot.bwapi.getFrameCount();
 					workerMovingToBuild = true;
+					JavaBot.bwapi.move(worker, buildTile.x, buildTile.y); //for debugging to see where probe will go
 					JavaBot.bwapi.build(worker, buildTile.x, buildTile.y, nextToBuild.ordinal());
 				}
 				
@@ -256,12 +246,18 @@ public class BuildManager implements Manager {
 	// Returns the Point object representing the suitable build tile position
 	// for a given building type near specified pixel position (or Point(-1,-1) if not found)
 	// (builderID should be our worker)
-	public static Point getBuildTile(int builderID, int buildingTypeID, int x, int y) {
+	public static Point getBuildTile(int builderID, int buildingTypeID, int x, int y, int buildDist, int deltaBuildDist, int spacing) {
 		Point ret = new Point(-1, -1);
-		int maxDist = 3;
-		int stopDist = 100;
+		int maxDist = buildDist;
+		int stopDist = 3000;
 		int tileX = x/32; int tileY = y/32;
 		UnitType unitType = JavaBot.bwapi.getUnitType(buildingTypeID);
+		ArrayList<Unit> bldgs = null;
+		
+		//needed for properly spacing pylons
+		if (buildingTypeID == UnitTypes.Protoss_Pylon.ordinal()) {
+			bldgs = getBuildingsByType(UnitTypes.Protoss_Pylon);
+		}
 		
 		// Refinery, Assimilator, Extractor
 		if (unitType.isRefinery()) {
@@ -283,15 +279,23 @@ public class BuildManager implements Manager {
 						for (Unit u : JavaBot.bwapi.getAllUnits()) {
 							if (u.getID() == builderID) 
 								continue;
-							else if (buildingTypeID == UnitTypes.Protoss_Stargate.ordinal() && (Math.abs(u.getTileX()-i) < unitType.getTileWidth()) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()))
+							else if ((buildingTypeID == UnitTypes.Protoss_Stargate.ordinal() || buildingTypeID == UnitTypes.Protoss_Photon_Cannon.ordinal()) && (Math.abs(u.getTileX()-i) < unitType.getTileWidth()) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight())) 
 								unitsInWay = true;
 							else if (buildingTypeID == UnitTypes.Protoss_Probe.ordinal() && u.getTypeID() == UnitTypes.Protoss_Probe.ordinal() && Utils.inRange(new Point(u.getX(), u.getY()), new Point(i,j), 220))
 								unitsInWay = true;
-							else if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+1) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+1))
+							else if ((Math.abs(u.getTileX()-i) < unitType.getTileWidth()+spacing) && (Math.abs(u.getTileY()-j) < unitType.getTileHeight()+spacing))
 							//else if ((Math.abs(u.getTileX()-i) < 3) && (Math.abs(u.getTileY()-j) < 3))
 								unitsInWay = true;
 						}
 						
+						if (buildingTypeID == UnitTypes.Protoss_Pylon.ordinal()) {
+							for (Unit pylon : bldgs) {
+								if (Utils.getDistance(new Point(pylon.getX(), pylon.getY()), new Point(i,j)) < 2500) {
+									unitsInWay = true;
+								}
+							}
+						}
+					
 						if (!unitsInWay) {
 							ret.x = i; ret.y = j;
 							return ret;
@@ -302,12 +306,75 @@ public class BuildManager implements Manager {
 					}
 				}
 			}
-			maxDist += 2;
+			maxDist += deltaBuildDist;
 		}
 		
 		if (ret.x == -1)
 			JavaBot.bwapi.printText("Unable to find suitable build position for "+JavaBot.bwapi.getUnitType(buildingTypeID).getName());
 		return ret;
+	}
+	
+	private static ArrayList<Unit> getBuildingsByType(UnitTypes unitType) {
+		ArrayList<Unit> bldgs = new ArrayList<Unit>();
+		
+		for (int buildingId : buildings)
+			if (JavaBot.bwapi.getUnit(buildingId).getTypeID() == unitType.ordinal())
+				bldgs.add(JavaBot.bwapi.getUnit(buildingId));
+		
+		return bldgs;
+	}
+	
+	private Point getBuildingLocation(int workerId, UnitTypes bldg) {
+		Point buildTile = new Point(-1,-1);
+		int spacing = 1;
+		
+		//special case to build photon cannon near choke points
+		if (bldg.ordinal() == UnitTypes.Protoss_Photon_Cannon.ordinal()) {
+			int midPointX = (homeBaseChokePoint.x + JavaBot.homePositionX)/2;
+			int midPointY = (homeBaseChokePoint.y + JavaBot.homePositionY)/2;
+			
+			while (buildTile.x == -1 && spacing >= -1)
+				buildTile = getBuildTile(workerId, bldg.ordinal(), midPointX, midPointY, 3, 3, spacing--);
+		}
+		else if (bldg.ordinal() == UnitTypes.Protoss_Pylon.ordinal()){
+			//get a random pylon
+			ArrayList<Unit> pylons = getBuildingsByType(UnitTypes.Protoss_Pylon);
+			if (pylons.size() > 0) {
+				Collections.shuffle(pylons);
+				Unit pylon = pylons.get(0);
+				double maxDist = 0;
+				Unit buildLocation = null;
+				
+				//find the building that is farthest away from pylon
+				for (int id : buildings) {
+					Unit u = JavaBot.bwapi.getUnit(id);
+					if (u.getTypeID() == UnitTypes.Protoss_Assimilator.ordinal())
+						continue;
+					
+					double dist = Utils.getDistance(new Point(u.getX(), u.getY()), new Point(pylon.getX(), pylon.getY()));
+					if (dist >= maxDist) {
+						maxDist = dist;
+						buildLocation = u;
+					}
+						
+				}
+				
+				//build around that building
+				while (buildTile.x == -1 && spacing >= -1)
+					buildTile = getBuildTile(workerId, bldg.ordinal(), buildLocation.getX(), buildLocation.getY(), 3, 3, spacing--);
+			}
+			else {
+				//in case there is no pylon
+				buildTile = getBuildTile(workerId, bldg.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY, 3, 3, 1);
+			}
+		}
+		//normal building case
+		else {
+			while (buildTile.x == -1 && spacing >= -1)
+				buildTile = getBuildTile(workerId, bldg.ordinal(), JavaBot.homePositionX, JavaBot.homePositionY, 3, 3, spacing--);
+		}
+		
+		return buildTile;
 	}
 
 }
