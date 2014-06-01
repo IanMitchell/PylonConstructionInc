@@ -3,6 +3,7 @@ package javabot.models;
 import java.awt.Point;
 
 import javabot.JavaBot;
+import javabot.Strategy;
 import javabot.controllers.ArmyManager;
 import javabot.controllers.ScoutManager;
 import javabot.types.UnitType;
@@ -17,6 +18,7 @@ public class ScoutSquad extends Squad {
 	private static int DANGER_RADIUS = 75;
 	private static int SCOUT_RADIUS = 300;
 	private int idleCount=0;
+	private int enemyRace = -1;
 	
 	public ScoutSquad(Unit scout) {
 		super();
@@ -70,19 +72,37 @@ public class ScoutSquad extends Squad {
 	
 	private int analyzeArea() {
 		int attackingWorkers = 0;
-		
+
 		for(Unit enemy : enemies) {
 			UnitType type = JavaBot.bwapi.getUnitType(enemy.getTypeID());
-			if(type.isBuilding() && ScoutManager.mainFound == false) {
-				if(type.getID() == UnitTypes.Terran_Command_Center.ordinal() || 
-				 type.getID() == UnitTypes.Protoss_Nexus.ordinal() ||
-				 type.getID() == UnitTypes.Zerg_Lair.ordinal() ||
-				 type.getID() == UnitTypes.Zerg_Hatchery.ordinal()) {
-					ArmyManager.getInstance().setEnemyMain(enemy.getX(), enemy.getY());
-					ScoutManager.mainFound = true; 
+			if (enemyRace == -1) // Haven't found enemy race yet
+			{
+				enemyRace = type.getRaceID();
+				JavaBot.strat.setRace(type.getRaceID());
+				JavaBot.bwapi.printText("Enemy is " + Race.fromID(type.getRaceID()).toString() + " race.");
+
+			}
+			if(type.isBuilding()) {
+				if (ScoutManager.mainFound == false) { // Set the main
+					if(type.getID() == UnitTypes.Terran_Command_Center.ordinal() || 
+							type.getID() == UnitTypes.Protoss_Nexus.ordinal() ||
+							type.getID() == UnitTypes.Zerg_Lair.ordinal() ||
+							type.getID() == UnitTypes.Zerg_Hatchery.ordinal()) 
+					{
+						ArmyManager.getInstance().setEnemyMain(enemy.getX(), enemy.getY());
+						//JavaBot.bwapi.printText("Enemy is " + Race.fromID(type.getRaceID()).toString() + " race.");
+						ScoutManager.mainFound = true;
+					}
+				}
+				
+				// Get enemy buildings for build manager.
+				if (!JavaBot.enemyBuildings.contains(enemy))
+				{
+					JavaBot.enemyBuildings.add(enemy);
+					JavaBot.bwapi.printText("Found enemy building: " + enemy.toString());
 				}
 			}
-			
+
 			if(type.isWorker()) {
 				if (isStronger(enemy) || scout.getHitPoints() < 10)
 				{
@@ -102,11 +122,11 @@ public class ScoutSquad extends Squad {
 			else
 				return DANGER;
 		}
-		
+
 		if (weakestWorker != null)
 			return ATTACKING;
 		return SCOUTING;
-		
+
 	}
 	
 	@Override
@@ -120,7 +140,7 @@ public class ScoutSquad extends Squad {
 	public void scout() {
 		if(status == SCOUTING || !scout.isMoving()) {
 			for(BaseLocation base : ScoutManager.bases) {
-				if (Utils.inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 400))
+				if (Utils.inRange(new Point(base.getX(), base.getY()), new Point(JavaBot.homePositionX, JavaBot.homePositionY), 600))
 					continue;
 				else {
 					if(base.isStartLocation()) {

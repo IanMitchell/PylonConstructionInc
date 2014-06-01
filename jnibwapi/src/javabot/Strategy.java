@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 import javabot.models.BuildTime;
+import javabot.models.Race;
 import javabot.models.UpgradeBuild;
 import javabot.types.UnitType.UnitTypes;
 import javabot.types.UpgradeType.UpgradeTypes;
@@ -29,6 +30,7 @@ public class Strategy {
 	private  Deque<UpgradeBuild> upgradePriorityList;
 	private  ArrayList<String> possibleStrats;
 	private  String strategy;
+	private  int race = -1;
 	
 	public Strategy() {
 		initialPriorityList = new ArrayDeque<BuildTime>();
@@ -182,6 +184,17 @@ public class Strategy {
 		for (UpgradeBuild ub : upgradePriorityList) {
 			System.out.printf("%s @ %s\n", ub.getUpgrade(), ub.getBuilding());
 		}
+	}
+	
+	public void setRace(int raceID)
+	{
+		// This is where you set the race. 
+		// Use the Race enum from javabot.models to get the ID!
+	}
+	
+	public int getRace()
+	{
+		return race;
 	}
 
 }

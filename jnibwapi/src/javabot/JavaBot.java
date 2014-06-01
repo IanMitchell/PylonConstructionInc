@@ -34,12 +34,13 @@ public class JavaBot implements BWAPIEventListener {
 	public static Deque<UnitTypes> buildingPriorityList = new ArrayDeque<UnitTypes>();
 	public static Deque<UpgradeBuild> upgradePriorityList = new ArrayDeque<UpgradeBuild>();
 
+	public static ArrayList<Unit> enemyBuildings = new ArrayList<Unit>();
 	
 	private static List<Unit> assignedUnits = new ArrayList<Unit>();
 	
 	private static boolean alreadyGaveScout = false;
 	
-	Strategy strat = new Strategy();
+	public static Strategy strat = new Strategy();
 	
 	private static int stopProbeNum = 0;
 	private static int startProbeNum = 0;
