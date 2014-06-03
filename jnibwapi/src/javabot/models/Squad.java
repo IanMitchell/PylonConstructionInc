@@ -26,6 +26,7 @@ public class Squad {
 	protected Point homeChokePoint;
 	protected Point lastOrderPoint;
 
+	private boolean readyFlag;
 	private int updateCount = 0;
 	
 	public Squad() {
@@ -37,6 +38,7 @@ public class Squad {
 		rallyPoint = new Point(-1, -1);
 		lastOrderPoint = new Point(0, 0);
 		squadCenter = new Point(-1, -1);
+		readyFlag = false;
 	}
 	
 	public void update() {
@@ -52,7 +54,8 @@ public class Squad {
 			int newStatus = 0;
 			Point latestOrder;
 			
-			if(squad.size() >= 2 && combatScore >= 10) {
+			if((squad.size() >= 5 || readyFlag) && combatScore >= 10) {
+				readyFlag = true;
 				newStatus = ATTACKING;
 				latestOrder = rallyPoint;
 			}

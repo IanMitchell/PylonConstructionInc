@@ -31,7 +31,12 @@ public class ArmyManager implements Manager {
 		if(squads.size() == 0) {
 			newSquad();
 		}
-		squads.get(0).assignUnit(unit);
+		else if (squads.get(squads.size()-1).size() >= 5) {
+			newSquad();
+		}
+		squads.get(squads.size()-1).assignUnit(unit);
+		
+		
 	}
 
 
