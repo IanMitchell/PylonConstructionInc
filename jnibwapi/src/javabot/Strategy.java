@@ -196,5 +196,73 @@ public class Strategy {
 	{
 		return race;
 	}
+	public UnitTypes TypetoTypes(int typeID) {
+		if(typeID == UnitTypes.Protoss_Arbiter.ordinal())
+			return UnitTypes.Protoss_Arbiter;
+		else if(typeID == UnitTypes.Protoss_Arbiter_Tribunal.ordinal())
+			return UnitTypes.Protoss_Arbiter_Tribunal;
+		else if(typeID == UnitTypes.Protoss_Archon.ordinal())
+			return UnitTypes.Protoss_Archon;
+		else if(typeID == UnitTypes.Protoss_Assimilator.ordinal())
+			return UnitTypes.Protoss_Assimilator;
+		else if(typeID == UnitTypes.Protoss_Carrier.ordinal())
+			return UnitTypes.Protoss_Carrier;
+		else if(typeID == UnitTypes.Protoss_Citadel_of_Adun.ordinal())
+			return UnitTypes.Protoss_Citadel_of_Adun;
+		else if(typeID == UnitTypes.Protoss_Corsair.ordinal())
+			return UnitTypes.Protoss_Corsair;
+		else if(typeID == UnitTypes.Protoss_Cybernetics_Core.ordinal())
+			return UnitTypes.Protoss_Cybernetics_Core;
+		else if(typeID == UnitTypes.Protoss_Dark_Archon.ordinal())
+			return UnitTypes.Protoss_Dark_Archon;
+		else if(typeID == UnitTypes.Protoss_Dark_Templar.ordinal())
+			return UnitTypes.Protoss_Dark_Templar;
+		else if(typeID == UnitTypes.Protoss_Dragoon.ordinal())
+			return UnitTypes.Protoss_Dragoon;
+		else if(typeID == UnitTypes.Protoss_Fleet_Beacon.ordinal())
+			return UnitTypes.Protoss_Fleet_Beacon;
+		else if(typeID == UnitTypes.Protoss_Forge.ordinal())
+			return UnitTypes.Protoss_Forge;
+		else if(typeID == UnitTypes.Protoss_Gateway.ordinal())
+			return UnitTypes.Protoss_Gateway;
+		else if(typeID == UnitTypes.Protoss_High_Templar.ordinal())
+			return UnitTypes.Protoss_High_Templar;
+		else if(typeID == UnitTypes.Protoss_Interceptor.ordinal())
+			return UnitTypes.Protoss_Interceptor;
+		else if(typeID == UnitTypes.Protoss_Nexus.ordinal())
+			return UnitTypes.Protoss_Nexus;
+		else if(typeID == UnitTypes.Protoss_Observatory.ordinal())
+			return UnitTypes.Protoss_Observatory;
+		else if(typeID == UnitTypes.Protoss_Observer.ordinal())
+			return UnitTypes.Protoss_Observer;
+		else if(typeID == UnitTypes.Protoss_Photon_Cannon.ordinal())
+			return UnitTypes.Protoss_Photon_Cannon;
+		else if(typeID == UnitTypes.Protoss_Probe.ordinal())
+			return UnitTypes.Protoss_Probe;
+		else if(typeID == UnitTypes.Protoss_Pylon.ordinal())
+			return UnitTypes.Protoss_Pylon;
+		else if(typeID == UnitTypes.Protoss_Reaver.ordinal())
+			return UnitTypes.Protoss_Reaver;
+		else if(typeID == UnitTypes.Protoss_Robotics_Facility.ordinal())
+			return UnitTypes.Protoss_Robotics_Facility;
+		else if(typeID == UnitTypes.Protoss_Robotics_Support_Bay.ordinal())
+			return UnitTypes.Protoss_Robotics_Support_Bay;
+		else if(typeID == UnitTypes.Protoss_Scarab.ordinal())
+			return UnitTypes.Protoss_Scarab;
+		else if(typeID == UnitTypes.Protoss_Scout.ordinal())
+			return UnitTypes.Protoss_Scout;
+		else if(typeID == UnitTypes.Protoss_Shield_Battery.ordinal())
+			return UnitTypes.Protoss_Shield_Battery;
+		else if(typeID == UnitTypes.Protoss_Shuttle.ordinal())
+			return UnitTypes.Protoss_Shuttle;
+		else if(typeID == UnitTypes.Protoss_Stargate.ordinal())
+			return UnitTypes.Protoss_Stargate;
+		else if(typeID == UnitTypes.Protoss_Templar_Archives.ordinal())
+			return UnitTypes.Protoss_Templar_Archives;
+		else if(typeID == UnitTypes.Protoss_Zealot.ordinal())
+			return UnitTypes.Protoss_Zealot;
+		else
+			return null;
+	}
 
 }

@@ -369,8 +369,28 @@ public class JavaBot implements BWAPIEventListener {
 	}
 	
 	public void unitDestroy(int unitID) {
-		for (Manager manager : managers.values())
-			manager.removeUnit(unitID);
+		int removed = -1;
+		
+		for (Manager manager : managers.values()) {
+			removed = manager.removeUnit(unitID);
+			
+			UnitType type = bwapi.getUnitType(unitID);
+
+			if(type.getRaceID() == 2 && removed != -1) {
+				UnitTypes replacement = strat.TypetoTypes(type.getID());
+
+				//System.out.println(type.getName() + " destroyed");
+			
+				if(type.isBuilding()) {
+					buildingPriorityList.add(replacement);
+					//System.out.println(buildingPriorityList.toString());
+				}
+				else {
+					unitPriorityList.add(replacement);
+					//System.out.println(unitPriorityList.toString());
+				}
+			}
+		}
 	}
 	
 	/**
