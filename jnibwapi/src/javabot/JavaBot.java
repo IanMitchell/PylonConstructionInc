@@ -273,11 +273,9 @@ public class JavaBot implements BWAPIEventListener {
 		UnitType type = bwapi.getUnitType(u.getTypeID());
 		
 		if (type.isWorker()) {
-			assignUnit(bwapi.getUnit(unitID), ResourceManager.class.getSimpleName());
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isAttackCapable() || type.isSpellcaster()) {
-			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
 			assignUnit(bwapi.getUnit(unitID), BuildManager.class.getSimpleName());
 		}
 		else if (type.isBuilding()) {
@@ -292,6 +290,18 @@ public class JavaBot implements BWAPIEventListener {
 					assignUnit(bwapi.getUnit(ResourceManager.getInstance().removeUnit(builderId)), ScoutManager.class.getSimpleName());
 				}
 			}
+		}
+	}
+	
+	public static void unitCreated(int unitID) {
+		Unit u = bwapi.getUnit(unitID);
+		UnitType type = bwapi.getUnitType(u.getTypeID());
+		
+		if (type.isWorker()) {
+			assignUnit(bwapi.getUnit(unitID), ResourceManager.class.getSimpleName());
+		}
+		else if (type.isAttackCapable() || type.isSpellcaster()) {
+			assignUnit(bwapi.getUnit(unitID), ArmyManager.class.getSimpleName());
 		}
 	}
 	

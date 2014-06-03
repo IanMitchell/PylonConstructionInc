@@ -25,7 +25,8 @@ public class BuildManager implements Manager {
 	public boolean workerMovingToBuild = false;
 	private boolean buildingNexus = false;
 	private int buildFrameCount = 0;
-	
+	private ArrayList<Unit> queuedUnits = new ArrayList<Unit>();
+
 	private BuildManager() {
 	}
 	
@@ -119,6 +120,14 @@ public class BuildManager implements Manager {
 					JavaBot.bwapi.train(buildings.get(i), nextToTrain.ordinal());
 					break;
 				}
+			}
+		}
+      
+      for (int i = 0; i < queuedUnits.size(); i++) {
+			if (!queuedUnits.get(i).isBeingConstructed()) {
+				JavaBot.unitCreated(queuedUnits.get(i).getID());
+				queuedUnits.remove(i);
+				i--;
 			}
 		}
 	}
