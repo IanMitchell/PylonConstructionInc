@@ -213,8 +213,10 @@ public class BuildManager implements Manager {
 				}
 			}
 		}
-		else if (type.isWorker() || type.isAttackCapable() || type.isSpellcaster())
+		else if (type.isWorker() || type.isAttackCapable() || type.isSpellcaster()) {
 			unitOrder.remove();
+			queuedUnits.add(unit);
+		}
 	}
 	
 	@Override
