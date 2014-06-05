@@ -213,7 +213,7 @@ public class Squad {
 				score -= (u.getHitPoints()/type.getMaxHitPoints()) * type.getSupplyRequired() * 10;
 			}
 			else if(u.getTypeID() == UnitTypes.Terran_Bunker.ordinal()) {
-				score -= (u.getHitPoints()/type.getMaxHitPoints()) * 200;
+				score -= (u.getHitPoints()/type.getMaxHitPoints()) * 20;
 			}
 		}
 		for(Unit u : allies) {
