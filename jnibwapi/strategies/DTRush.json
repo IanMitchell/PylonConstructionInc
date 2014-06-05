@@ -58,7 +58,8 @@
 	"unitPriorityList" :
 	[
 		{
-			"name" : "Protoss_Dark_Templar"
+			"name" : "Protoss_Dark_Templar",
+			"count" : "3"
 		},
 		{
 			"name" : "Protoss_Dragoon"

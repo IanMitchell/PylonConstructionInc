@@ -187,16 +187,17 @@ public class JavaBot implements BWAPIEventListener {
 			else if (BuildManager.getInstance().workerMovingToBuild) {
 			}*/
 			//Don't have the minerals to try to build something. Lets check if we can build a unit we need instead
-			for (int i = 0; i < unitPriorityList.size(); i++) {
-				UnitType type = bwapi.getUnitType(unitPriorityList.get(i).ordinal());
-				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice() && type.getSupplyRequired() / 2 <= getSupplyAvailable()) {
+			//for (int i = 0; i < unitPriorityList.size(); i++) {
+				UnitType type = bwapi.getUnitType(unitPriorityList.get(0).ordinal());
+				if (player.getMinerals() >= type.getMineralPrice() && player.getGas() >= type.getGasPrice() && type.getSupplyRequired() /*/ 2*/ <= getSupplyAvailable()) {
 					//Checks to see if there are any buildings that can build that unit that aren't currently building anything
-					if (BuildManager.getInstance().canTrain(unitPriorityList.get(i))) {
-						BuildManager.getInstance().toTrain(unitPriorityList.get(i));
-						break;
+					if (BuildManager.getInstance().canTrain(unitPriorityList.get(0))) {
+						BuildManager.getInstance().toTrain(unitPriorityList.get(0));
+						unitPriorityList.add(unitPriorityList.remove(0));
+						
 					}
 				}
-			}	
+			//}	
 		}
 		
 		//build intercepters (the little guys on carriers)

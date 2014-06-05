@@ -30,10 +30,6 @@
 			"name" : "Protoss_Dragoon"
 		},
 		{
-            "supplyNum" : "17",
-            "name" : "Protoss_Photon_Cannon"
-        },
-		{
 			"supplyNum" : "17",
 			"type" : "upgrade",
 			"name" : "Singularity_Charge",
@@ -55,12 +51,13 @@
 
 	"unitPriorityList" :
 	[
+	    {
+            "name" : "Protoss_Zealot"
+        },
 		{
 			"name" : "Protoss_Dragoon"
-		},
-		{
-			"name" : "Protoss_Zealot"
 		}
+
 	],
 
 	"buildingPriorityList" :
