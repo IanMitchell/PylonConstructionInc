@@ -110,7 +110,13 @@ public class Squad {
 	}
 	
 	protected Point getRandomPoint() {
-		return new Point(random.nextInt() * 1200 - 600 + rallyPoint.x, random.nextInt() * 1200 - 600 + rallyPoint.y);
+		// 3776, 400
+		Point p = new Point(random.nextInt() * 600 - 300 + rallyPoint.x, random.nextInt() * 600 - 300 + rallyPoint.y);
+		p.x = Math.max(p.x, 3999);
+		p.x = Math.min(p.x, 0);
+		p.y = Math.max(p.y, 3999);
+		p.y = Math.min(p.y, 0);
+		return p;
 	}
 	
 	public void act() {
