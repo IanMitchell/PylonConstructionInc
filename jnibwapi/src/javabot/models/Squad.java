@@ -116,10 +116,10 @@ public class Squad {
 	protected Point getRandomPoint() {
 		// 3776, 400
 		Point p = new Point(random.nextInt(600) - 300 + rallyPoint.x, random.nextInt(600) - 300 + rallyPoint.y);
-		p.x = Math.max(p.x, 3999);
-		p.x = Math.min(p.x, 0);
-		p.y = Math.max(p.y, 3999);
-		p.y = Math.min(p.y, 0);
+		p.x = Math.min(p.x, 3999);
+		p.x = Math.max(p.x, 0);
+		p.y = Math.min(p.y, 3999);
+		p.y = Math.max(p.y, 0);
 		JavaBot.bwapi.printText("CLEANUP RALLY POINT " + p.x + ", " + p.y);
 		return p;
 	}
