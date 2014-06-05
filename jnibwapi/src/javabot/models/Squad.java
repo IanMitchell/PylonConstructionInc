@@ -14,6 +14,7 @@ import javabot.util.*;
 public class Squad {
 	private ArrayList<Unit> squad;
 	protected ArrayList<Unit> enemies;
+	protected ArrayList<Unit> allies;
 	protected ArrayList<Unit> stragglers;
 	public static final int ATTACKING = 0;
 	public static final int DEFENDING = 1;
@@ -25,6 +26,8 @@ public class Squad {
 	protected Point squadCenter;
 	protected Point homeChokePoint;
 	protected Point lastOrderPoint;
+	int orderCooldown = 0;
+	int maxOrderCooldown = 20;
 
 	private boolean readyFlag;
 	private int updateCount = 0;
@@ -33,6 +36,7 @@ public class Squad {
 		status = IDLE;
 		squad = new ArrayList<Unit>();
 		enemies = new ArrayList<Unit>();
+		allies = new ArrayList<Unit>();
 		stragglers = new ArrayList<Unit>();
 		homeChokePoint = Utils.getClosestChokePoint(new Point(JavaBot.homePositionX, JavaBot.homePositionY));
 		rallyPoint = new Point(-1, -1);
@@ -43,14 +47,20 @@ public class Squad {
 	
 	public void update() {
 		updateCount++;
+		orderCooldown++;
+		
 		updateSquadPos();
+		
 		if(squad.size() > 0) {
 			moveStragglers();
 			setEnemies(NEARBY_RADIUS);
+			setAllies(NEARBY_RADIUS);
 			int combatScore = combatSimScore();
+			
 			if(updateCount % 100 == 0) {
-				//JavaBot.bwapi.printText("combatSimScore: " + combatScore);
+				JavaBot.bwapi.printText("combatSimScore: " + combatScore);
 			}
+			
 			int newStatus = 0;
 			Point latestOrder;
 			
@@ -63,9 +73,10 @@ public class Squad {
 				if(status != IDLE) {
 					newStatus = RETREATING;
 				}
+				
 				latestOrder = homeChokePoint;
 			}
-			if(status != newStatus) {
+			if(status != newStatus && orderCooldown > maxOrderCooldown) {
 				JavaBot.bwapi.printText("New order");
 				status = newStatus;
 				lastOrderPoint = latestOrder;
@@ -79,6 +90,8 @@ public class Squad {
 				else if(status == RETREATING) {
 					JavaBot.bwapi.printText("New order: Retreating (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
 				}
+				
+				orderCooldown = 0;
 			}
 		}
 	}
@@ -148,6 +161,14 @@ public class Squad {
 		}
 	}
 	
+	protected void setAllies(int radius) {
+		allies.clear();
+		for(Unit ally : JavaBot.bwapi.getMyUnits()) {
+			if (Utils.inRange(squadCenter, new Point(ally.getX(), ally.getY()), radius))
+				allies.add(ally);
+		}
+	}
+	
 	public void setRallyPoint(Point p) {
 		rallyPoint = (Point) p.clone();
 	}
@@ -167,7 +188,7 @@ public class Squad {
 				score -= (u.getHitPoints()/type.getMaxHitPoints()) * 200;
 			}
 		}
-		for(Unit u : squad) {
+		for(Unit u : allies) {
 			UnitType type = JavaBot.bwapi.getUnitType(u.getTypeID());
 			//A full health zealot is worth 40
 			//A little arbitrary. Just need to go back and forth until the right value is met in terms of worker/bunker worth to units
@@ -177,20 +198,22 @@ public class Squad {
 	}
 	
 	protected void updateSquadPos() {
-		squadCenter = getCenter(squad);
-		JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, NEARBY_RADIUS, BWColor.GREEN, false, false);
-		
-		for(Unit straggler : stragglers) {
-			if(straggler.isCompleted()) {
-				if(Utils.inRange(squadCenter, new Point(straggler.getX(), straggler.getY()), NEARBY_RADIUS)) {
-					JavaBot.bwapi.printText("Straggler added to Squad");
-					stragglers.remove(straggler);
-					squad.add(straggler);
-					moveToRallyPoint(lastOrderPoint, status);
+		if (squad.size() > 0) {
+			squadCenter = getCenter(squad);
+			JavaBot.bwapi.drawCircle(squadCenter.x, squadCenter.y, NEARBY_RADIUS, BWColor.GREEN, false, false);
+			
+			for(Unit straggler : stragglers) {
+				if(straggler.isCompleted()) {
+					if(Utils.inRange(squadCenter, new Point(straggler.getX(), straggler.getY()), NEARBY_RADIUS)) {
+						JavaBot.bwapi.printText("Straggler added to Squad");
+						stragglers.remove(straggler);
+						squad.add(straggler);
+						moveToRallyPoint(lastOrderPoint, status);
+					}
 				}
 			}
+			squadCenter = getCenter(squad);	
 		}
-		squadCenter = getCenter(squad);
 	}
 	
 	/**
@@ -216,17 +239,18 @@ public class Squad {
 	 * @return
 	 */
 	public static Point getCenter(ArrayList<Unit> units) {
-		int x = 0, y = 0;
-		
-		if(units.size() >= 1) {
-			for(Unit unit: units) {
-				x += unit.getX();
-				y += unit.getY();
-			}
-			x = x / units.size();
-			y = y / units.size();
-		}
-		return new Point(x,y);
+		return new Point(units.get(0).getX(), units.get(0).getY());
+//		int x = 0, y = 0;
+//		
+//		if(units.size() >= 1) {
+//			for(Unit unit: units) {
+//				x += unit.getX();
+//				y += unit.getY();
+//			}
+//			x = x / units.size();
+//			y = y / units.size();
+//		}
+//		return new Point(x,y);
 	}
 
 }

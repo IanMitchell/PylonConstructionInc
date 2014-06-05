@@ -103,7 +103,7 @@ public class JavaBot implements BWAPIEventListener {
 		managers.put(BuildManager.class.getSimpleName(), BuildManager.getInstance());
 		managers.put(ResourceManager.class.getSimpleName(), ResourceManager.getInstance());
 		managers.put(ScoutManager.class.getSimpleName(), ScoutManager.getInstance());
-		managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
+		//managers.put(TrashManager.class.getSimpleName(), TrashManager.getInstance());
 		managers.put(UnitManager.class.getSimpleName(), UnitManager.getInstance());
 		for (Manager manager : managers.values())
 			manager.reset();
