@@ -73,7 +73,7 @@ public class Squad {
 				// TODO: Send squad as group vs split
 				latestOrder = rallyPoint;
 				
-				if (Utils.inRange(squadCenter, rallyPoint, NEARBY_RADIUS)) {
+				if (Utils.inRange(squadCenter, rallyPoint, NEARBY_RADIUS / 2)) {
 					newStatus = CLEANUP;
 				}
 			}
@@ -84,7 +84,7 @@ public class Squad {
 				
 				latestOrder = homeChokePoint;
 			}
-			if((status != newStatus || newStatus == CLEANUP) && orderCooldown > maxOrderCooldown) {
+			if(status != newStatus && orderCooldown > maxOrderCooldown) {
 				JavaBot.bwapi.printText("New order");
 				status = newStatus;
 				lastOrderPoint = latestOrder;
