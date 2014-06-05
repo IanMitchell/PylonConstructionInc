@@ -101,6 +101,7 @@ public class Squad {
 				}
 				else if (status == CLEANUP) {
 					rallyPoint = getRandomPoint();
+					moveToRallyPoint(rallyPoint, status);
 					JavaBot.bwapi.printText("New order: Cleanup (" + rallyPoint.x + "," + rallyPoint.y + ")");
 				}
 				
