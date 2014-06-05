@@ -1,14 +1,11 @@
 {
 	"Terran" :
 	[
-		"DTRush",
-		"GoonDTRush",
-		"ZealotRush"
+		"DTRush"
 	],
 	"Zerg" :
 	[
-		"CorsairDT",
-		"SpeedZealot"
+		"GoonRush"
 	],
 	"Protoss" :
 	[
@@ -16,6 +13,6 @@
 	],
 	"Random" :
 	[
-		"DTRush"
+		"GoonRush"
 	]
 }
