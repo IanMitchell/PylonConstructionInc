@@ -75,6 +75,7 @@ public class Squad {
 				
 				if (Utils.inRange(squadCenter, rallyPoint, NEARBY_RADIUS / 2)) {
 					newStatus = CLEANUP;
+					JavaBot.bwapi.printText("CLEANUP TIME DETECTED");
 				}
 			}
 			else {
@@ -84,12 +85,14 @@ public class Squad {
 				
 				latestOrder = homeChokePoint;
 			}
+			
 			if(status != newStatus && orderCooldown > maxOrderCooldown) {
 				JavaBot.bwapi.printText("New order");
 				status = newStatus;
 				lastOrderPoint = latestOrder;
 				
 				moveToRallyPoint(lastOrderPoint, status);
+				
 				if(status == ATTACKING) {
 					JavaBot.bwapi.printText("New order: Attacking (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
 				}
@@ -117,6 +120,7 @@ public class Squad {
 		p.x = Math.min(p.x, 0);
 		p.y = Math.max(p.y, 3999);
 		p.y = Math.min(p.y, 0);
+		JavaBot.bwapi.printText("CLEANUP RALLY POINT " + p.x + ", " + p.y);
 		return p;
 	}
 	
