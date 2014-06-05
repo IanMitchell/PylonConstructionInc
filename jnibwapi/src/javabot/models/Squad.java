@@ -12,6 +12,7 @@ import javabot.types.UnitType.UnitTypes;
 import javabot.util.*;
 
 public class Squad {
+	private Random random;
 	private ArrayList<Unit> squad;
 	protected ArrayList<Unit> enemies;
 	protected ArrayList<Unit> allies;
@@ -20,6 +21,7 @@ public class Squad {
 	public static final int DEFENDING = 1;
 	public static final int IDLE = 2;
 	public static final int RETREATING = 3;
+	public static final int CLEANUP = 4;
 	protected static final int NEARBY_RADIUS = 400;
 	protected int status;
 	protected Point rallyPoint;
@@ -33,6 +35,7 @@ public class Squad {
 	private int updateCount = 0;
 	
 	public Squad() {
+		random = new Random();
 		status = IDLE;
 		squad = new ArrayList<Unit>();
 		enemies = new ArrayList<Unit>();
@@ -67,7 +70,12 @@ public class Squad {
 			if((squad.size() >= 5 || readyFlag) && combatScore >= 10) {
 				readyFlag = true;
 				newStatus = ATTACKING;
+				// TODO: Send squad as group vs split
 				latestOrder = rallyPoint;
+				
+				if (Utils.inRange(squadCenter, rallyPoint, NEARBY_RADIUS)) {
+					newStatus = CLEANUP;
+				}
 			}
 			else {
 				if(status != IDLE) {
@@ -76,10 +84,11 @@ public class Squad {
 				
 				latestOrder = homeChokePoint;
 			}
-			if(status != newStatus && orderCooldown > maxOrderCooldown) {
+			if((status != newStatus || newStatus == CLEANUP) && orderCooldown > maxOrderCooldown) {
 				JavaBot.bwapi.printText("New order");
 				status = newStatus;
 				lastOrderPoint = latestOrder;
+				
 				moveToRallyPoint(lastOrderPoint, status);
 				if(status == ATTACKING) {
 					JavaBot.bwapi.printText("New order: Attacking (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
@@ -90,10 +99,18 @@ public class Squad {
 				else if(status == RETREATING) {
 					JavaBot.bwapi.printText("New order: Retreating (" + lastOrderPoint.x + "," + lastOrderPoint.y + ")");
 				}
+				else if (status == CLEANUP) {
+					rallyPoint = getRandomPoint();
+					JavaBot.bwapi.printText("New order: Cleanup (" + rallyPoint.x + "," + rallyPoint.y + ")");
+				}
 				
 				orderCooldown = 0;
 			}
 		}
+	}
+	
+	protected Point getRandomPoint() {
+		return new Point(random.nextInt() * 1200 - 600 + rallyPoint.x, random.nextInt() * 1200 - 600 + rallyPoint.y);
 	}
 	
 	public void act() {
@@ -111,7 +128,7 @@ public class Squad {
 	
 	protected void moveToRallyPoint(Point p, int status) {
 		for(Unit unit : squad) {
-			if(status == ATTACKING) {
+			if(status == ATTACKING || status == CLEANUP) {
 				JavaBot.bwapi.attack(unit.getID(), p.x, p.y);
 			}
 			else if(status == DEFENDING) {
@@ -239,6 +256,7 @@ public class Squad {
 	 * @return
 	 */
 	public static Point getCenter(ArrayList<Unit> units) {
+		// TODO: Revert
 		return new Point(units.get(0).getX(), units.get(0).getY());
 //		int x = 0, y = 0;
 //		
